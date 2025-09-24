@@ -1,0 +1,53 @@
+[
+  {
+    "uploadedAt": "2025-07-06T05:11:46.730Z",
+    "slipData": {
+      "success": true,
+      "data": {
+        "success": true,
+        "message": "✅",
+        "language": null,
+        "transRef": "A15c9083c51ae4e75",
+        "sendingBank": "006",
+        "receivingBank": "004",
+        "transDate": "20250628",
+        "transTime": "13:19:58",
+        "transTimestamp": "2025-06-28T06:19:58.000Z",
+        "sender": {
+          "displayName": "นายพงษ์พิพัฒน์ อ",
+          "name": "MR.Pongpipat I",
+          "proxy": {
+            "type": null,
+            "value": null
+          },
+          "account": {
+            "type": "BANKAC",
+            "value": "XXX-X-XX780-4"
+          }
+        },
+        "receiver": {
+          "displayName": "นาย นวพล น",
+          "name": "MR. NAWAPHON N",
+          "proxy": {
+            "type": null,
+            "value": null
+          },
+          "account": {
+            "type": "BANKAC",
+            "value": "XXX-X-XX154-9"
+          }
+        },
+        "amount": 88,
+        "paidLocalAmount": null,
+        "paidLocalCurrency": null,
+        "countryCode": "TH",
+        "transFeeAmount": null,
+        "ref1": null,
+        "ref2": null,
+        "ref3": null,
+        "toMerchantId": null,
+        "qrcodeData": "0038000600000101030060217A15c9083c51ae4e755102TH91040DEE"
+      }
+    }
+  }
+]

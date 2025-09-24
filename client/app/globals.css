@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+:root {
+  --background: rgb(255, 255, 255); /* ใช้ rgba สำหรับการระบุสีและความทึบ */
+  --foreground: rgba(255, 255, 255); /* ใช้ rgba สำหรับการระบุสีและความทึบ */
+}
+
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: rgba(255, 255, 255); /* ใช้ rgba สำหรับการระบุสีและความทึบ */
+    --foreground: rgba(255, 255, 255); 
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.promo-scrollbar::-webkit-scrollbar {
+  height: 8px;
+  background: transparent;
+  border-radius: 8px;
+}
+.promo-scrollbar::-webkit-scrollbar-thumb {
+  background: #2563eb; /* Tailwind blue-600 */
+  border-radius: 8px;
+}
+.promo-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #1e40af; /* Tailwind blue-800 */
+}
+.promo-scrollbar::-webkit-scrollbar-track {
+  background: #181512;
+  border-radius: 8px;
+}
+
+/* Firefox */
+.promo-scrollbar {
+  scrollbar-color: #2563eb #181512;
+  scrollbar-width: thin;
+}
