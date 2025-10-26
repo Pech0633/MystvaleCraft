@@ -9,6 +9,7 @@ export default function EditUserPage() {
   const [editingUser, setEditingUser] = useState(null);
   const [form, setForm] = useState({ point: '', RP: '', newPassword: '' });
   const [showModal, setShowModal] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
 
   // custom alert state (JS version, no TypeScript)
   const [alert, setAlert] = useState({
@@ -73,11 +74,47 @@ export default function EditUserPage() {
     }
   };
 
+  // Filter users based on search query
+  const filteredUsers = users.filter(user => {
+    const query = searchQuery.toLowerCase();
+    return (
+      user.username?.toLowerCase().includes(query) ||
+      user.id?.toString().includes(query) ||
+      user.realname?.toLowerCase().includes(query)
+    );
+  });
+
   return (
     <>
       <Navbar />
       <div className="p-4 sm:p-8 max-w-5xl mx-auto text-gray-900">
         <h1 className="text-2xl sm:text-3xl font-bold mb-6">แก้ไขผู้ใช้</h1>
+
+        {/* Search bar */}
+        <div className="mb-6">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="🔍 ค้นหาด้วย username, ID หรือ realname..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full p-4 pr-12 rounded-2xl border-2 border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none text-gray-800 placeholder-gray-400 transition"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-xl"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          {searchQuery && (
+            <p className="mt-2 text-sm text-gray-500">
+              พบ <span className="font-semibold text-blue-600">{filteredUsers.length}</span> รายการ
+            </p>
+          )}
+        </div>
 
         {/* table (desktop) */}
         <div className="hidden sm:block overflow-x-auto rounded-2xl shadow-md bg-white">
@@ -93,7 +130,14 @@ export default function EditUserPage() {
               </tr>
             </thead>
             <tbody>
-              {users.map(u => (
+              {filteredUsers.length === 0 ? (
+                <tr>
+                  <td colSpan="6" className="p-8 text-center text-gray-500">
+                    {searchQuery ? 'ไม่พบผลการค้นหา' : 'ไม่มีข้อมูลผู้ใช้'}
+                  </td>
+                </tr>
+              ) : (
+                filteredUsers.map(u => (
                 <tr key={u.id} className="border-t hover:bg-gray-50 transition">
                   <td className="p-3">{u.id}</td>
                   <td className="p-3 font-semibold">{u.username}</td>
@@ -109,9 +153,57 @@ export default function EditUserPage() {
                     </button>
                   </td>
                 </tr>
-              ))}
+                ))
+              )}
             </tbody>
           </table>
+        </div>
+
+        {/* cards (mobile) */}
+        <div className="sm:hidden space-y-4">
+          {filteredUsers.length === 0 ? (
+            <div className="bg-white rounded-2xl shadow-md p-8 text-center text-gray-500">
+              {searchQuery ? 'ไม่พบผลการค้นหา' : 'ไม่มีข้อมูลผู้ใช้'}
+            </div>
+          ) : (
+            filteredUsers.map(u => (
+            <div key={u.id} className="bg-white rounded-2xl shadow-md p-4 border border-gray-200">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white font-bold">
+                    {u.username?.charAt(0).toUpperCase() || 'U'}
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-800">{u.username}</h3>
+                    <p className="text-xs text-gray-500">ID: {u.id}</p>
+                  </div>
+                </div>
+                <button
+                  className="bg-gradient-to-r from-blue-500 to-indigo-500 text-white px-4 py-2 rounded-xl shadow text-sm font-semibold"
+                  onClick={() => handleEdit(u)}
+                >
+                  แก้ไข
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-3 pt-3 border-t border-gray-100">
+                <div className="bg-gray-50 rounded-xl p-3">
+                  <p className="text-xs text-gray-500 mb-1">Point</p>
+                  <p className="text-lg font-bold text-gray-800">{u.point}</p>
+                </div>
+                <div className="bg-gray-50 rounded-xl p-3">
+                  <p className="text-xs text-gray-500 mb-1">RP</p>
+                  <p className="text-lg font-bold text-gray-800">{u.RP}</p>
+                </div>
+              </div>
+              {u.realname && (
+                <div className="mt-3 pt-3 border-t border-gray-100">
+                  <p className="text-xs text-gray-500 mb-1">Realname</p>
+                  <p className="text-sm font-medium text-gray-800">{u.realname}</p>
+                </div>
+              )}
+            </div>
+            ))
+          )}
         </div>
 
         {/* modal edit user */}

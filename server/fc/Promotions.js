@@ -45,9 +45,10 @@ router.post('/post', upload.single('img'), async (req, res) => {
             return res.status(400).json({ error: 'กรุณาอัปโหลดภาพ' });
         }
         
+        // เก็บเฉพาะ path ของไฟล์
         const data = {
             ...req.body,
-            img: `${process.env.IMAGEURL}/uploads/Promotions/${req.file.filename}`
+            img: `uploads/Promotions/${req.file.filename}`
         };
         const newPromotions = await Promotions.create(data);
         res.json(newPromotions);
@@ -65,7 +66,7 @@ router.put('/put/:id', upload.single('img'), async (req, res) => {
         
         // ถ้ามีการอัปโหลดไฟล์ใหม่ ให้อัปเดต img
         if (req.file) {
-            data.img = `${process.env.IMAGEURL}/uploads/Promotions/${req.file.filename}`;
+            data.img = `uploads/Promotions/${req.file.filename}`;
         }
         
         const updated = await Promotions.update(data, {
@@ -80,7 +81,17 @@ router.put('/put/:id', upload.single('img'), async (req, res) => {
 router.get('/', async (req, res) => {
     try {
         const Promotionss = await Promotions.findAll();
-        res.json(Promotionss);
+        
+        // แปลง path เป็น full URL เมื่อส่ง response
+        const PromotionssWithFullUrl = Promotionss.map(promotion => {
+            const promotionData = promotion.toJSON();
+            if (promotionData.img) {
+                promotionData.img = `${process.env.IMAGEURL}/${promotionData.img}`;
+            }
+            return promotionData;
+        });
+        
+        res.json(PromotionssWithFullUrl);
     } catch (error) {
         console.error("DB Error:", error);
         res.status(500).json({ error: 'Server error' });
@@ -95,7 +106,16 @@ router.get('/get/:type', async (req, res) => {
             where: { type }
         });
 
-        res.json(Promotionss);
+        // แปลง path เป็น full URL เมื่อส่ง response
+        const PromotionssWithFullUrl = Promotionss.map(promotion => {
+            const promotionData = promotion.toJSON();
+            if (promotionData.img) {
+                promotionData.img = `${process.env.IMAGEURL}/${promotionData.img}`;
+            }
+            return promotionData;
+        });
+
+        res.json(PromotionssWithFullUrl);
     } catch (error) {
         console.error("DB Error:", error);
         res.status(500).json({ error: 'Server error' });
@@ -106,6 +126,21 @@ router.get('/get/:type', async (req, res) => {
 router.delete('/del/:id', async (req, res) => {
     try {
         const { id } = req.params;
+        
+        const promotion = await Promotions.findByPk(id);
+        if (!promotion) {
+            return res.status(404).json({ error: 'ไม่พบโปรโมชั่นนี้' });
+        }
+        
+        // ลบไฟล์ภาพ
+        if (promotion.img) {
+            const imagePath = promotion.img;
+            const fullImagePath = path.join(__dirname, '../..', imagePath);
+            if (fs.existsSync(fullImagePath)) {
+                fs.unlinkSync(fullImagePath);
+            }
+        }
+        
         await Promotions.destroy({
             where: { id }
         });

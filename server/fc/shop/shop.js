@@ -47,13 +47,13 @@ router.post('/post', upload.single('image'), async (req, res) => {
             return res.status(400).json({ error: 'กรุณาอัปโหลดภาพ' });
         }
         
-        // สร้าง URL สำหรับภาพ
-        const imageUrl = `${process.env.IMAGEURL}/uploads/shops/${req.file.filename}`;
+        // เก็บเฉพาะ path ของไฟล์
+        const imagePath = `uploads/shops/${req.file.filename}`;
         
         // บันทึกลงฐานข้อมูล
         const newShop = await Shop.create({ 
             name, 
-            image: imageUrl, 
+            image: imagePath, 
             href 
         });
         
@@ -70,8 +70,18 @@ router.post('/post', upload.single('image'), async (req, res) => {
 });
 
 router.get('/get', async (req, res) => {
-    const shop = await Shop.findAll();
-    res.json(shop);
+    const shops = await Shop.findAll();
+    
+    // แปลง path เป็น full URL เมื่อส่ง response
+    const shopsWithFullUrl = shops.map(shop => {
+        const shopData = shop.toJSON();
+        if (shopData.image) {
+            shopData.image = `${process.env.IMAGEURL}/${shopData.image}`;
+        }
+        return shopData;
+    });
+    
+    res.json(shopsWithFullUrl);
 });
 
 router.put('/put/:id', upload.single('image'), async (req, res) => {
@@ -89,25 +99,23 @@ router.put('/put/:id', upload.single('image'), async (req, res) => {
             return res.status(404).json({ error: 'ไม่พบร้านค้านี้' });
         }
         
-        let imageUrl = shop.image; // ใช้ภาพเดิม
+        let imagePath = shop.image; // ใช้ภาพเดิม
         
         // ถ้ามีไฟล์ใหม่อัปโหลด
         if (req.file) {
             // ลบไฟล์เก่า
-            if (shop.image && shop.image.includes(process.env.IMAGEURL)) {
-                const oldImagePath = shop.image.replace(`${process.env.IMAGEURL}/`, '');
-                const fullOldPath = path.join(__dirname, '../../', oldImagePath);
-                if (fs.existsSync(fullOldPath)) {
-                    fs.unlinkSync(fullOldPath);
-                }
+            const oldImagePath = shop.image;
+            const fullOldPath = path.join(__dirname, '../../', oldImagePath);
+            if (fs.existsSync(fullOldPath)) {
+                fs.unlinkSync(fullOldPath);
             }
             
-            // สร้าง URL สำหรับภาพใหม่
-            imageUrl = `${process.env.IMAGEURL}/uploads/shops/${req.file.filename}`;
+            // เก็บเฉพาะ path ของไฟล์ใหม่
+            imagePath = `uploads/shops/${req.file.filename}`;
         }
         
         // อัปเดตข้อมูล
-        await shop.update({ name, image: imageUrl, href });
+        await shop.update({ name, image: imagePath, href });
         res.json(shop);
     } catch (err) {
         // ลบไฟล์ที่อัปโหลดแล้วถ้าเกิดข้อผิดพลาด

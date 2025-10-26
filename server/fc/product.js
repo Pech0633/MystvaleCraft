@@ -47,8 +47,8 @@ router.post('/post', upload.single('priceture'), async (req, res) => {
             return res.status(400).json({ error: 'กรุณาอัปโหลดภาพ' });
         }
         
-        // สร้าง URL สำหรับภาพ
-        const imageUrl = `${process.env.IMAGEURL}/uploads/products/${req.file.filename}`;
+        // เก็บเฉพาะ path ของไฟล์
+        const imagePath = `uploads/products/${req.file.filename}`;
         
         // บันทึกลงฐานข้อมูล
         const newProduct = await Product.create({
@@ -59,7 +59,7 @@ router.post('/post', upload.single('priceture'), async (req, res) => {
             type,
             rank_id,
             rank_set,
-            priceture: imageUrl
+            priceture: imagePath
         });
         
         res.json(newProduct);
@@ -91,21 +91,19 @@ router.put('/put/:id', upload.single('priceture'), async (req, res) => {
             return res.status(404).json({ error: 'ไม่พบสินค้านี้' });
         }
         
-        let imageUrl = product.priceture; // ใช้ภาพเดิม
+        let imagePath = product.priceture; // ใช้ภาพเดิม
         
         // ถ้ามีไฟล์ใหม่อัปโหลด
         if (req.file) {
             // ลบไฟล์เก่า
-            if (product.priceture && product.priceture.includes(process.env.IMAGEURL)) {
-                const oldImagePath = product.priceture.replace(`${process.env.IMAGEURL}/`, '');
-                const fullOldPath = path.join(__dirname, '../..', oldImagePath);
-                if (fs.existsSync(fullOldPath)) {
-                    fs.unlinkSync(fullOldPath);
-                }
+            const oldImagePath = product.priceture;
+            const fullOldPath = path.join(__dirname, '../..', oldImagePath);
+            if (fs.existsSync(fullOldPath)) {
+                fs.unlinkSync(fullOldPath);
             }
             
-            // สร้าง URL สำหรับภาพใหม่
-            imageUrl = `${process.env.IMAGEURL}/uploads/products/${req.file.filename}`;
+            // เก็บเฉพาะ path ของไฟล์ใหม่
+            imagePath = `uploads/products/${req.file.filename}`;
         }
         
         // อัปเดตข้อมูล
@@ -117,7 +115,7 @@ router.put('/put/:id', upload.single('priceture'), async (req, res) => {
             type,
             rank_id,
             rank_set,
-            priceture: imageUrl
+            priceture: imagePath
         });
         
         res.json({ message: 'Product updated', product });
@@ -139,7 +137,16 @@ router.get('/get/:type', async (req, res) => {
             where: { type }
         });
 
-        res.json(products);
+        // แปลง path เป็น full URL เมื่อส่ง response
+        const productsWithFullUrl = products.map(product => {
+            const productData = product.toJSON();
+            if (productData.priceture) {
+                productData.priceture = `${process.env.IMAGEURL}/${productData.priceture}`;
+            }
+            return productData;
+        });
+
+        res.json(productsWithFullUrl);
     } catch (error) {
         console.error("DB Error:", error);
         res.status(500).json({ error: 'Server error' });
@@ -157,8 +164,8 @@ router.delete('/del/:id', async (req, res) => {
         }
         
         // ลบไฟล์ภาพ
-        if (product.priceture && product.priceture.includes(process.env.IMAGEURL)) {
-            const imagePath = product.priceture.replace(`${process.env.IMAGEURL}/`, '');
+        if (product.priceture) {
+            const imagePath = product.priceture;
             const fullImagePath = path.join(__dirname, '../..', imagePath);
             if (fs.existsSync(fullImagePath)) {
                 fs.unlinkSync(fullImagePath);
