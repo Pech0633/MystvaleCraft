@@ -24,7 +24,7 @@ const Page = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-4" >
       <div className='flex items-center justify-center mb-6'>
-          <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-black border-b-2 border-gray-300 pb-2 flex items-center gap-3'>
+          <h2 className='text-xl sm:text-2xl md:text-3xl font-bold text-white drop-shadow-lg border-b-2 border-white/50 pb-2 flex items-center gap-3'>
             SUPPORTERSUPPORTER
           </h2>
         </div>
@@ -33,10 +33,10 @@ const Page = () => {
           {users.map((user, index) => (
             <div
               key={index}
-              className={`w-full text-black flex items-center justify-between p-6 rounded-2xl border transition-all duration-300 transform ${
+              className={`glass-white w-full text-white flex items-center justify-between p-6 rounded-2xl transition-all duration-300 transform ${
                 index === 0
-                  ? " border-yellow-600 shadow-xl hover:scale-105"
-                  : " border-gray-300 shadow-md hover:scale-105"
+                  ? "border-yellow-400/50 shadow-xl hover:scale-105 hover:border-yellow-400"
+                  : "shadow-md hover:scale-105"
               }`}
             >
               <div className="flex items-center gap-6">

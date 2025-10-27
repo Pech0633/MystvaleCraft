@@ -40,12 +40,12 @@ const Page = () => {
           <Link
             key={idx}
             href={item.href}
-            className="bg-white outline-none group bg-gradient-to-br  rounded-2xl p-7 flex-1 max-w-md flex flex-col justify-between shadow-xl border border-[#232323] hover:border-white/30 hover:shadow-blue-400/30 transition-all duration-200 relative overflow-hidden"
+            className="glass-white outline-none group rounded-2xl p-7 flex-1 max-w-md flex flex-col justify-between hover:border-white/40 transition-all duration-200 relative overflow-hidden"
             style={{ minHeight: 200 }}
           >
             <div>
-              <div className="text-blue-400 font-extrabold text-xl drop-shadow-sm group-hover:underline">{item.title}</div>
-              <div className="text-black text-base mt-2">{item.subtitle}</div>
+              <div className="text-white font-extrabold text-xl drop-shadow-sm group-hover:underline">{item.title}</div>
+              <div className="text-white/90 text-base mt-2">{item.subtitle}</div>
             </div>
             <img
               src={item.image}
@@ -53,7 +53,7 @@ const Page = () => {
               className="w-28 h-28 self-end mt-4 transition-transform duration-200 group-hover:scale-110 drop-shadow-lg"
             />
             {/* เพิ่ม effect แสง */}
-            <div className="absolute inset-0 pointer-events-none group-hover:bg-blue-400/5 transition-colors duration-200 rounded-2xl" />
+            <div className="absolute inset-0 pointer-events-none group-hover:bg-white/10 transition-colors duration-200 rounded-2xl" />
           </Link>
         ))}
       </div>
