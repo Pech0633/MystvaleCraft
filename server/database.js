@@ -3,7 +3,7 @@ const { Sequelize } = require('sequelize')
 
 
 const sequelize = new Sequelize('minecraft','root','', {
-    host: '127.0.0.1',
+    host: '147.50.252.17',
     dialect: 'mysql'
 })
 
