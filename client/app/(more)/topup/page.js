@@ -211,9 +211,9 @@ const TopupPage = () => {
             {paymentMethod === 'bank' ? (
               <div className="mb-6 text-center">
                 <div className="inline-block border border-black rounded-lg px-6 py-4 mb-2 bg-transparent">
-                  <div className="text-lg font-bold text-black">เลขบัญชี: 194-1-76154-9</div>
+                  <div className="text-lg font-bold text-black">เลขบัญชี: 0651988799</div>
                   <div className="text-base text-black">ธนาคารกสิกรไทย</div>
-                  <div className="text-base text-black">ชื่อบัญชี: นวพล นามหาวงษ์</div>
+                  <div className="text-base text-black">ชื่อบัญชี: บุญส่ง เขียวแก้ว</div>
                 </div>
                 <div className="text-xs text-gray-500">* กรุณาโอนเงินเข้าบัญชีนี้และอัปโหลดสลิป</div>
               </div>
