@@ -32,10 +32,11 @@ const Login = () => {
 
       const data = await res.json();
       if (data.status) {
-        Cookies.set('token', data.data, {
+        // ตั้งค่า Cookie แบบปลอดภัยสำหรับ HTTPS
+        Cookies.set('token', data.data, { 
           expires: 1,
-          secure: true,
-          sameSite: 'strict',
+          secure: true,      // ส่งผ่าน HTTPS เท่านั้น
+          sameSite: 'strict' // ป้องกัน CSRF
         });
         dispatch(login(data.user));
         Swal.fire({

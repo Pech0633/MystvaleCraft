@@ -27,7 +27,7 @@ const blacklist = [];
 const bodyParser = require('body-parser');
 const twApi = require('@opecgame/twapi');
 const { Webhook, MessageBuilder } = require('discord-webhook-node');
-const hook = new Webhook("https://discordapp.com/api/webhooks/1364060977095639161/r8S3LnNOjkhxkcz1EoZtdvzep631110jPFiGv-FRGouyKC5cJwWqSvp9UaotHs79SVb4");
+const hook = new Webhook("https://discord.com/api/webhooks/1432209069829001318/z1LgnyZtU0fqYl55XahLrsvlQ9F24-A-pCbgHJe3AaClbkiYyERBRparw6NorUMFB_7d");
 const promotions = require('./fc/Promotions');
 require('dotenv').config();
 const Backend = require('./model/backend');
@@ -40,7 +40,14 @@ async function initDB() {
 initDB();
 
 const corsOptions = {
-    origin: "http://localhost:4000",
+    origin: function (origin, callback) {
+        // อนุญาต production และ localhost ทุก port สำหรับ development
+        if (!origin || origin === 'https://store-rebirthcraft.ddns.net' || origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
     credentials: true
 };
 app.use(cors(corsOptions));
@@ -117,7 +124,6 @@ app.get('/user/:token', async (req, res) => {
         }
     });
 });
-
 
 app.post("/buy", async (req, res) => {
     const { Id, userId, quantity, idrank, rankup, type } = req.body;
@@ -450,7 +456,6 @@ app.post('/redeem', async (req, res) => {
             const embed = new MessageBuilder()
             .setTitle('ผู้เล่น ' + playerName)
             .setDescription('ได้เติมเงินจำนวน ' + result.amount + ' บาท ได้รับพอยท์จำนวน ' + points + ' พอยท์')
-            .setImage('https://i.imgur.com/SDZ8fZL.png')
             .setTimestamp();
             
             hook.send(embed);
@@ -502,86 +507,132 @@ function writeSlipokJson(data) {
 app.post('/slipok', upload.single('files'), async (req, res) => {
   const file = req.file;
   const { playerName = '-', userId } = req.body;
-
-  // 🛡️ 1) เช็กว่ามี userId ส่งมาด้วย
-  if (!userId) {
-    return res.status(400).json({ status: 'FAIL', reason: 'Missing userId' });
-  }
-
-  // 🛡️ 2) หา user
+  
+  if (!userId) return res.status(400).json({ status: 'FAIL', reason: 'Missing userId' });
+  
   const user = await User.findByPk(userId);
-  if (!user) {
-    return res.status(404).json({ status: 'FAIL', reason: 'User not found' });
-  }
+  if (!user) return res.status(404).json({ status: 'FAIL', reason: 'User not found' });
 
   const formData = new FormData();
   formData.append('files', file.buffer, file.originalname);
 
   try {
-    const response = await axios.post(
-      'https://api.slipok.com/api/line/apikey/48096',
-      formData,
-      {
-        headers: {
-          ...formData.getHeaders(),
-          'x-authorization': 'SLIPOKTUE8101',
-        },
-      },
-    );
-
-    const slipData = response.data;     
-    const transRef = slipData.transRef;
-
+    const response = await axios.post('https://api.slipok.com/api/line/apikey/55189', formData, { 
+      headers: { ...formData.getHeaders(), 'x-authorization': 'SLIPOK85EENAL' } 
+    });
+    
+    const slipData = response.data;
+    console.log('Slipok Full Response:', JSON.stringify(slipData, null, 2)); // Debug log
+    
+    // ตรวจสอบว่าเป็น object หรือ string
+    let transRef, amount, sender, receiver, dateTime;
+    
+    if (typeof slipData === 'string') {
+      // ถ้าเป็น string (เช่น "202510273svz0gRRfxWJB4I1T")
+      transRef = slipData;
+      amount = 0; // ไม่มีข้อมูล amount ต้องให้ user กรอกเอง
+      return res.status(400).json({
+        status: 'FAIL',
+        reason: 'ไม่สามารถอ่านข้อมูลจำนวนเงินจากสลิปได้ กรุณาใช้ช่องทางอื่น',
+        transRef
+      });
+    } else if (slipData && typeof slipData === 'object') {
+      // ถ้าเป็น object ปกติ
+      transRef = slipData.transRef || slipData.data?.transRef || slipData.ref || null;
+      amount = Number(slipData.amount || slipData.data?.amount || 0);
+      sender = slipData.data?.sender?.displayName || slipData.sender || null;
+      receiver = slipData.data?.receiver?.displayName || slipData.receiver || null;
+      dateTime = slipData.data?.sendingDateTime || slipData.data?.transDateTime || slipData.date || null;
+    } else {
+      return res.status(400).json({
+        status: 'FAIL',
+        reason: 'ไม่สามารถอ่านข้อมูลจากสลิปได้',
+        rawData: slipData
+      });
+    }
+    
+    // ตรวจสอบว่ามีข้อมูลครบไหม
+    if (!transRef) {
+      return res.status(400).json({
+        status: 'FAIL',
+        reason: 'ไม่พบหมายเลขอ้างอิงจากสลิป',
+        slipData
+      });
+    }
+    
+    if (!amount || amount <= 0) {
+      return res.status(400).json({
+        status: 'FAIL',
+        reason: 'ไม่สามารถอ่านจำนวนเงินจากสลิปได้',
+        transRef,
+        slipData
+      });
+    }
+    
+    // สร้าง unique key
+    const uniqueKey = `${transRef}_${amount}_${dateTime || ''}`;
     const uploaded = readSlipokJson();
-    if (uploaded.find((it) => it.transRef === transRef)) {
-      return res
-        .status(400)
-        .json({ status: 'FAIL', reason: 'สลิปนี้ถูกใช้งานไปแล้ว', transRef });
+    
+    // ตรวจสอบซ้ำ
+    const isDuplicate = uploaded.find(it => 
+      it.transRef === transRef || 
+      it.uniqueKey === uniqueKey
+    );
+    
+    if (isDuplicate) {
+      return res.status(400).json({ 
+        status: 'FAIL', 
+        reason: 'สลิปนี้ถูกใช้งานไปแล้ว', 
+        transRef,
+        uploadedAt: isDuplicate.uploadedAt,
+        uploadedBy: isDuplicate.playerName
+      });
     }
 
-    const amountBaht = Number(slipData?.data?.amount ?? 0);
-    const points = calculateDiamonds(amountBaht); // ⬅️
+    // คำนวณแต้ม
+    const points = calculateDiamonds(amount);
+    
+    // เพิ่มแต้มให้ผู้ใช้
     user.point += points;
-    user.RP += amountBaht;
+    user.RP += amount;
     await user.save();
 
-    uploaded.push({
+    // บันทึกข้อมูลสลิป
+    uploaded.push({ 
       transRef,
-      uploadedAt: new Date().toISOString(),
-      slipData,
+      uniqueKey,
+      amount,
+      sender,
+      receiver,
+      dateTime,
+      userId,
+      playerName,
+      uploadedAt: new Date().toISOString(), 
+      slipData 
     });
     writeSlipokJson(uploaded);
 
-    /* --------- Discord Webhook --------- */
-    try {
-      const embed = new MessageBuilder()
-        .setTitle(`ผู้เล่น ${playerName}`)
-        .setDescription(
-          `ได้เติมเงินจำนวน ${amountBaht} บาท` +
-            ` ได้รับพอยท์จำนวน ${points} พอยท์`,
-        )
-        .setImage('https://i.imgur.com/SDZ8fZL.png')
+    // Discord Webhook
+    const embed = new MessageBuilder()
+        .setDescription(`ผู้เล่น ${playerName} ได้เติมเงินจำนวน ${amount} บาท (${points} แต้ม)`)
         .setTimestamp();
-      hook.send(embed);
-    } catch (e) {
-      console.error('ส่ง Discord Webhook ไม่สำเร็จ:', e.message);
-    }
+    hook.send(embed);
 
-
-    res.json({
-      status: 'SUCCESS',
-      message: 'เติมเงินสำเร็จ',
+    res.json({ 
+      status: 'SUCCESS', 
+      message: 'เติมเงินสำเร็จ', 
       transRef,
-      amountBaht,
-      points,
-      newPoint: user.point,
+      amountBaht: amount, 
+      points, 
+      newPoint: user.point 
     });
+    
   } catch (error) {
-    console.error(error.response?.data || error.message);
-    res.status(500).json({
-      status: 'FAIL',
-      reason: error.message,
-      detail: error.response?.data,
+    console.error('Slipok Error:', error.response?.data || error.message);
+    res.status(500).json({ 
+      status: 'FAIL', 
+      reason: 'เกิดข้อผิดพลาดในการตรวจสอบสลิป',
+      detail: error.response?.data || error.message 
     });
   }
 });
