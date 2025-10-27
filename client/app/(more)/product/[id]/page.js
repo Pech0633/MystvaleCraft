@@ -122,11 +122,11 @@ const Page = () => {
   }, [showGiftPopup]);
 
   return (
-    <div className="min-h-screen">
-      <div className="max-w-4xl mx-auto px-4 py-6">
+    <div className="min-h-screen py-12">
+      <div className="max-w-4xl mx-auto px-4">
         {/* Header */}
         <div className="text-center mb-8">
-          <h2 className='text-2xl font-semibold text-gray-900 flex items-center justify-center gap-3'>
+          <h2 className='text-2xl font-semibold text-white drop-shadow-lg flex items-center justify-center gap-3'>
             {decodeURIComponent(id)}
           </h2>
         </div>
@@ -134,15 +134,15 @@ const Page = () => {
         {/* Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {ranks.map(r => (
-            <div key={r.id} className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm border border-gray-100/50 overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-1">
-              <div className="aspect-square bg-gray-50 flex items-center justify-center p-4">
+            <div key={r.id} className="glass-white rounded-2xl shadow-sm overflow-hidden transition-all duration-200 hover:shadow-md hover:-translate-y-1">
+              <div className="aspect-square bg-white/10 flex items-center justify-center p-4">
                 <img src={r.priceture} alt={r.name} className="max-w-full max-h-full object-contain rounded-xl" />
               </div>
               <div className="p-4 space-y-3">
-                <h3 className="text-lg font-semibold text-gray-900 truncate text-center">{r.name}</h3>
+                <h3 className="text-lg font-semibold text-white truncate text-center drop-shadow-lg">{r.name}</h3>
                 <div className="flex items-center justify-center gap-2">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-sm text-gray-600">฿{r.price}</span>
+                  <span className="text-sm text-white">฿{r.price}</span>
                 </div>
                 <div className="flex gap-2 pt-2">
                   <button
