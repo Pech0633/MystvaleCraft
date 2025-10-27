@@ -138,17 +138,17 @@ const TopupPage = () => {
   }
 
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 text-black bg-transparent">
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       {/* PROMOTION SECTION */}
       <div className="max-w-5xl mx-auto mb-10">
-        <div className="rounded-lg shadow-xl p-8 border border-black bg-transparent">
+        <div className="glass-white rounded-lg shadow-xl p-8">
           <div className="text-center mb-4">
-            <h2 className="text-3xl font-bold text-black mb-2">โปรโมชั่นเติมเงินสะสม</h2>
+            <h2 className="text-3xl font-bold text-white mb-2 drop-shadow-lg">โปรโมชั่นเติมเงินสะสม</h2>
           </div>
           {promoLoading ? (
-            <div className="text-center text-gray-500">กำลังโหลดโปรโมชั่น...</div>
+            <div className="text-center text-white/70">กำลังโหลดโปรโมชั่น...</div>
           ) : promotions.length === 0 ? (
-            <div className="text-center text-black text-lg font-bold py-8">คุณได้รับไปหมดแล้ว</div>
+            <div className="text-center text-white text-lg font-bold py-8">คุณได้รับไปหมดแล้ว</div>
           ) : (
             <div className="flex overflow-x-auto space-x-6 pb-2 promo-scrollbar">
               {promotions.map((promo) => {
@@ -156,14 +156,14 @@ const TopupPage = () => {
                 return (
                   <div
                     key={promo.id}
-                    className="border border-black rounded-xl p-6 flex flex-col items-center shadow-lg min-w-[260px] max-w-[280px] flex-shrink-0 bg-transparent"
+                    className="glass-white rounded-xl p-6 flex flex-col items-center shadow-lg min-w-[260px] max-w-[280px] flex-shrink-0"
                   >
                     <img src={promo.img.replace('./', '/f/public/')} alt={promo.name} className="w-24 h-24 object-contain mb-4" />
-                    <div className="text-lg font-semibold mb-2 text-black">{promo.rplimited} บาท</div>
+                    <div className="text-lg font-semibold mb-2 text-white">{promo.rplimited} บาท</div>
                     <button
                       disabled={!eligible}
                       className={`w-full py-2 rounded-lg font-bold flex items-center justify-center gap-2 ${
-                        eligible ? 'bg-black text-white hover:bg-gray-900' : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        eligible ? 'bg-white/40 text-white hover:bg-white/60' : 'bg-white/10 text-white/50 cursor-not-allowed'
                       }`}
                       onClick={() => eligible && handleGetPromotion(promo.id)}
                     >
@@ -179,18 +179,18 @@ const TopupPage = () => {
 
       {/* TOPUP FORM */}
       <div className="max-w-xl mx-auto">
-        <div className="rounded-lg shadow-xl p-8 border border-black bg-transparent">
+        <div className="glass-white rounded-lg shadow-xl p-8">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-black mb-2">เติมเงิน</h1>
+            <h1 className="text-3xl font-bold text-white mb-2 drop-shadow-lg">เติมเงิน</h1>
           </div>
 
           <div className="flex justify-center mb-6">
-            <div className="bg-transparent border border-black rounded-lg p-1">
+            <div className="bg-white/10 border border-white/35 rounded-lg p-1">
               <button
                 type="button"
                 onClick={() => setPaymentMethod('angpao')}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  paymentMethod === 'angpao' ? 'bg-black text-white' : 'text-black hover:text-gray-700'
+                  paymentMethod === 'angpao' ? 'bg-white/40 text-white' : 'text-white/70 hover:text-white'
                 }`}
               >
                 ซองอังเปา
@@ -199,7 +199,7 @@ const TopupPage = () => {
                 type="button"
                 onClick={() => setPaymentMethod('bank')}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                  paymentMethod === 'bank' ? 'bg-black text-white' : 'text-black hover:text-gray-700'
+                  paymentMethod === 'bank' ? 'bg-white/40 text-white' : 'text-white/70 hover:text-white'
                 }`}
               >
                 สลิปธนาคาร
@@ -210,16 +210,16 @@ const TopupPage = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {paymentMethod === 'bank' ? (
               <div className="mb-6 text-center">
-                <div className="inline-block border border-black rounded-lg px-6 py-4 mb-2 bg-transparent">
-                  <div className="text-lg font-bold text-black">เลขบัญชี: 0651988799</div>
-                  <div className="text-base text-black">ธนาคารกสิกรไทย</div>
-                  <div className="text-base text-black">ชื่อบัญชี: บุญส่ง เขียวแก้ว</div>
+                <div className="inline-block glass-white border rounded-lg px-6 py-4 mb-2">
+                  <div className="text-lg font-bold text-white">เลขบัญชี: 0651988799</div>
+                  <div className="text-base text-white">ธนาคารกสิกรไทย</div>
+                  <div className="text-base text-white">ชื่อบัญชี: บุญส่ง เขียวแก้ว</div>
                 </div>
-                <div className="text-xs text-gray-500">* กรุณาโอนเงินเข้าบัญชีนี้และอัปโหลดสลิป</div>
+                <div className="text-xs text-white/70">* กรุณาโอนเงินเข้าบัญชีนี้และอัปโหลดสลิป</div>
               </div>
             ) : (
               <div>
-                <label htmlFor="code" className="block text-sm font-medium text-black mb-2">
+                <label htmlFor="code" className="block text-sm font-medium text-white mb-2">
                   ลิงก์ซองอังเปา
                 </label>
                 <input
@@ -229,7 +229,7 @@ const TopupPage = () => {
                   value={formData.code}
                   onChange={handleInputChange}
                   required
-                  className="w-full px-4 py-3 border border-black rounded-lg focus:ring-2 focus:ring-black bg-transparent text-black"
+                  className="w-full px-4 py-3 border border-white/35 rounded-lg focus:ring-2 focus:ring-white bg-white/10 text-white placeholder-white/50"
                   placeholder="วางลิ้งซองอังเปา"
                 />
               </div>
@@ -237,12 +237,12 @@ const TopupPage = () => {
 
             {paymentMethod === 'bank' && (
               <div>
-                <label htmlFor="file-upload" className="block text-sm font-medium text-black mb-2">
+                <label htmlFor="file-upload" className="block text-sm font-medium text-white mb-2">
                   สลิปการโอนเงิน
                 </label>
-                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-black border-dashed rounded-lg hover:border-gray-700 transition-colors bg-transparent">
+                <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-white/35 border-dashed rounded-lg hover:border-white/50 transition-colors bg-white/10">
                   <div className="space-y-1 text-center">
-                    <svg className="mx-auto h-12 w-12 text-black" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                    <svg className="mx-auto h-12 w-12 text-white/50" stroke="currentColor" fill="none" viewBox="0 0 48 48">
                       <path
                         d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
                         strokeWidth={2}
@@ -250,8 +250,8 @@ const TopupPage = () => {
                         strokeLinejoin="round"
                       />
                     </svg>
-                    <div className="flex text-sm text-black">
-                      <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-medium text-blue-600 hover:text-blue-500">
+                    <div className="flex text-sm text-white/80">
+                      <label htmlFor="file-upload" className="relative cursor-pointer rounded-md font-medium text-white hover:text-white/80">
                         <span>อัปโหลดไฟล์</span>
                         <input
                           id="file-upload"
@@ -264,17 +264,17 @@ const TopupPage = () => {
                       </label>
                       <p className="pl-1">หรือลากและวาง</p>
                     </div>
-                    <p className="text-xs text-gray-500">PNG, JPG, GIF ขนาดไม่เกิน 5MB</p>
+                    <p className="text-xs text-white/50">PNG, JPG, GIF ขนาดไม่เกิน 5MB</p>
                   </div>
                 </div>
-                {selectedFile && <div className="mt-2 text-sm text-green-600">✓ เลือกไฟล์แล้ว: {selectedFile.name}</div>}
+                {selectedFile && <div className="mt-2 text-sm text-green-400">✓ เลือกไฟล์แล้ว: {selectedFile.name}</div>}
               </div>
             )}
 
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-black text-white py-3 px-4 rounded-lg font-medium hover:bg-gray-900 focus:ring-2 focus:ring-black transition duration-200 disabled:opacity-50"
+              className="w-full bg-white/40 text-white py-3 px-4 rounded-lg font-medium hover:bg-white/60 focus:ring-2 focus:ring-white transition duration-200 disabled:opacity-50"
             >
               {loading ? 'กำลังประมวลผล...' : paymentMethod === 'angpao' ? 'ยืนยันการเติมเงิน' : 'อัปโหลดสลิป'}
             </button>
