@@ -21,25 +21,11 @@
 }
 
 body {
-  background: var(--background);
-  
-  /* ตัวเลือกที่ 1: ใส่พื้นหลังแบบรูปภาพ */
-  /* background-image: url('/images/background.jpg'); */
-  /* background-size: cover; */
-  /* background-position: center; */
-  /* background-repeat: no-repeat; */
-  /* background-attachment: fixed; */
-  
-  /* ตัวเลือกที่ 2: ใช้สีไล่ระดับ (gradient) */
-  /* background: linear-gradient(to bottom right, #667eea, #764ba2); */
-  
-  /* ตัวเลือกที่ 3: พื้นหลังสีทึบ */
-  /* background: #0f172a; */
-  
-  /* ตัวเลือกที่ 4: รูปภาพพร้อม overlay สีทึบ (ปกปิดรูปเกิน) */
-  /* background: 
-    linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)),
-    url('/images/background.jpg'); */
+  background-image: url('/566618330_832208839296238_3931774826071478079_n.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
