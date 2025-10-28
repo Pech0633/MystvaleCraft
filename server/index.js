@@ -1,3 +1,5 @@
+require('dotenv').config(); // ⭐ ต้องอยู่บรรทัดแรกสุด!
+
 const express = require('express');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
@@ -9,8 +11,6 @@ const FormData = require('form-data');
 const fs = require('fs');
 const path = require('path');
 const { Op } = require('sequelize');
-const dotenv = require('dotenv');
-dotenv.config();
 
 const app = express();
 
@@ -29,8 +29,11 @@ const twApi = require('@opecgame/twapi');
 const { Webhook, MessageBuilder } = require('discord-webhook-node');
 const hook = new Webhook("https://discord.com/api/webhooks/1432209069829001318/z1LgnyZtU0fqYl55XahLrsvlQ9F24-A-pCbgHJe3AaClbkiYyERBRparw6NorUMFB_7d");
 const promotions = require('./fc/Promotions');
-require('dotenv').config();
 const Backend = require('./model/backend');
+
+// ตรวจสอบว่าโหลด env สำเร็จ
+console.log('✅ IMAGEURL:', process.env.IMAGEURL);
+console.log('✅ TEST:', process.env.TEST);
 
 const { connect, sync } = require('./database');
 async function initDB() {
@@ -39,15 +42,9 @@ async function initDB() {
 }
 initDB();
 
+
 const corsOptions = {
-    origin: function (origin, callback) {
-        // อนุญาต production และ localhost ทุก port สำหรับ development
-        if (!origin || origin === 'https://store-rebirthcraft.ddns.net' || origin.startsWith('http://localhost:') || origin.startsWith('http://127.0.0.1:')) {
-            callback(null, true);
-        } else {
-            callback(new Error('Not allowed by CORS'));
-        }
-    },
+    origin: "http://localhost:4000",
     credentials: true
 };
 app.use(cors(corsOptions));
@@ -125,6 +122,7 @@ app.get('/user/:token', async (req, res) => {
     });
 });
 
+
 app.post("/buy", async (req, res) => {
     const { Id, userId, quantity, idrank, rankup, type } = req.body;
     if (!Number.isInteger(quantity) || quantity <= 0) {
@@ -153,7 +151,7 @@ app.post("/buy", async (req, res) => {
 
         try {
             const rcon = await Rcon.connect({ host: process.env.RCON_HOST, port: Number(process.env.RCON_PORT), password: process.env.RCON_PASSWORD });
-            const rankCommand = rank.command.replace("%player%", user.realname).replace("%quantity%", quantity);
+            const rankCommand = rank.command.replace("%player%", user.realname).replace("%q%", quantity);
             await rcon.send(rankCommand);
             await rcon.end();
 
@@ -180,7 +178,7 @@ app.post("/buy", async (req, res) => {
 
         try {
             const rcon = await Rcon.connect({ host: process.env.RCON_HOST, port: Number(process.env.RCON_PORT), password: process.env.RCON_PASSWORD });
-            const itemCommand = item.command.replace("%player%", user.username)
+            const rankCommand = rank.command.replace("%player%", user.realname).replace("%q%", quantity);
             await rcon.send(itemCommand);
             rcon.end();
 
@@ -226,7 +224,7 @@ app.post("/git", async (req, res) => {
 
         try {
             const rcon = await Rcon.connect({ host: process.env.RCON_HOST, port: Number(process.env.RCON_PORT), password: process.env.RCON_PASSWORD });
-            const rankCommand = rank.command.replace("%player%", user.username).replace("%quantity%", quantity);
+            const rankCommand = rank.command.replace("%player%", user.username).replace("%q%", quantity);
             await rcon.send(rankCommand);
             await rcon.end();
 
@@ -254,7 +252,7 @@ app.post("/git", async (req, res) => {
 
         try {
             const rcon = await Rcon.connect({ host: process.env.RCON_HOST, port: Number(process.env.RCON_PORT), password: process.env.RCON_PASSWORD });
-            const itemCommand = item.command.replace("%player%", user.username).replace("%quantity%", quantity);
+            const itemCommand = item.command.replace("%player%", user.username).replace("%q%", quantity);
             await rcon.send(itemCommand);
             await rcon.end();
 
@@ -352,17 +350,22 @@ app.get('/promotions/:username', async (req, res) => {
     const receivedIds = received.map(r => r.promotionsid);
 
     // 2. ดึงโปรโมชั่นทั้งหมดที่ยังไม่เคยรับ
-    const promotions = await Promotions.findAll({
+    const promotionsList = await Promotions.findAll({
         where: {
             id: { [Op.notIn]: receivedIds }
         }
     });
 
-    res.json(promotions);
-});
-app.get('/promotions', async (req, res) => {
-    const promotion = await Promotions.findAll();
-    res.json(promotion);
+    // 3. แปลง path เป็น full URL
+    const promotionsWithFullUrl = promotionsList.map(promotion => {
+        const promotionData = promotion.toJSON();
+        if (promotionData.img) {
+            promotionData.img = `${process.env.IMAGEURL}/${promotionData.img}`;
+        }
+        return promotionData;
+    });
+
+    res.json(promotionsWithFullUrl);
 });
 app.get('/news', async (req, res) => {
     const news = await News.findAll();
@@ -455,7 +458,7 @@ app.post('/redeem', async (req, res) => {
 
             const embed = new MessageBuilder()
             .setTitle('ผู้เล่น ' + playerName)
-            .setDescription('ได้เติมเงินจำนวน ' + result.amount + ' บาท ได้รับพอยท์จำนวน ' + points + ' พอยท์')
+            .setDescription('ได้เติมเงินจำนวน ' + result.amount + ' บาท ได้รับพอยท์จำนวน ' + points + ' พอยท์ ผ่านTrueWallet')
             .setTimestamp();
             
             hook.send(embed);
@@ -614,7 +617,8 @@ app.post('/slipok', upload.single('files'), async (req, res) => {
 
     // Discord Webhook
     const embed = new MessageBuilder()
-        .setDescription(`ผู้เล่น ${playerName} ได้เติมเงินจำนวน ${amount} บาท (${points} แต้ม)`)
+        .setTitle('ผู้เล่น ' + playerName)
+        .setDescription(`ได้เติมเงินจำนวน ${amount} บาท ${points} แต้ม ผ่านธนาคาร`)
         .setTimestamp();
     hook.send(embed);
 
