@@ -163,7 +163,9 @@ const TopupPage = () => {
                     <button
                       disabled={!eligible}
                       className={`w-full py-2 rounded-lg font-bold flex items-center justify-center gap-2 ${
-                        eligible ? 'bg-white/40 text-white hover:bg-white/60' : 'bg-white/10 text-white/50 cursor-not-allowed'
+                        eligible
+                          ? 'bg-green-500 text-white hover:bg-green-600 transition-colors'
+                          : 'bg-white/10 text-white/50 cursor-not-allowed'
                       }`}
                       onClick={() => eligible && handleGetPromotion(promo.id)}
                     >
@@ -282,7 +284,7 @@ const TopupPage = () => {
         </div>
       </div>
     
-      {/* iOS-style Alert rr */}
+      {/* iOS-style Alert */}
       {showAlert && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex justify-center items-center z-50 p-4">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm">
