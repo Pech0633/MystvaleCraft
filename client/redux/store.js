@@ -4,6 +4,7 @@ import loginReducer from './storage/LoginSlice';
 import slideReducer from './storage/promotion';  
 import ranksReducer from './storage/ranks'; 
 import newsReducer from './storage/news';
+import redermReducer from './storage/rederm';
 
 const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ const store = configureStore({
     slides: slideReducer, 
     ranks: ranksReducer, 
     news: newsReducer,
+    rederm: redermReducer,
   },
 });
 

@@ -5,7 +5,8 @@ import { FaSignOutAlt, FaKey } from 'react-icons/fa';
 import Cookies from 'js-cookie';
 import { logout } from '@/redux/userSlice';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Gift } from 'lucide-react';
+import { showrederm, hiderederm } from '@/redux/storage/rederm';
 
 const Kl = () => {
   const user = useSelector((state) => state.user);
@@ -15,9 +16,12 @@ const Kl = () => {
   const [oldPassword2, setOldPassword2] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [showPass, setShowPass] = useState({ old1: false, old2: false, newP: false });
-  const [toast, setToast] = useState(null); // { type, message }
+  const [toast, setToast] = useState(null);
 
   const dispatch = useDispatch();
+
+  // ✅ เช็กว่ามือถือหรือไม่
+  const isMobile = () => typeof window !== 'undefined' && window.innerWidth < 640;
 
   const handleLogout = () => {
     Cookies.remove('token');
@@ -25,7 +29,7 @@ const Kl = () => {
   };
 
   const togglePassword = (field) => {
-    setShowPass(prev => ({ ...prev, [field]: !prev[field] }));
+    setShowPass((prev) => ({ ...prev, [field]: !prev[field] }));
   };
 
   const showToast = (type, message) => {
@@ -53,7 +57,9 @@ const Kl = () => {
       const data = await res.json();
       if (res.ok) {
         showToast('success', 'เปลี่ยนรหัสผ่านสำเร็จ');
-        setOldPassword1(''); setOldPassword2(''); setNewPassword('');
+        setOldPassword1('');
+        setOldPassword2('');
+        setNewPassword('');
         setShowChangePassword(false);
       } else {
         showToast('error', data.message || 'เกิดข้อผิดพลาด');
@@ -91,8 +97,11 @@ const Kl = () => {
       </AnimatePresence>
 
       {/* User Menu */}
-      <div className={`fixed sm:top-[60px] max-sm:top-16 mx-auto sm:mx-0 sm:right-8 max-sm:right-0 md:right-[10%] lg:right-[30%]
-        w-80 bg-white/20 backdrop-blur-xl text-black rounded-xl shadow-2xl border border-white/30 text-sm p-4 z-50`}>
+      <div
+        className={`fixed sm:top-[60px] max-sm:bottom-0 max-sm:left-0 max-sm:right-0 max-sm:mb-16 mx-auto sm:mx-0 sm:right-8 md:right-[10%] lg:right-[30%]
+        w-80 max-sm:w-full max-sm:rounded-t-2xl max-sm:rounded-b-none
+        bg-white/20 backdrop-blur-xl text-black rounded-xl shadow-2xl border border-white/30 text-sm p-4 z-50`}
+      >
         <div className="flex items-center space-x-3 p-2 hover:bg-white/20 rounded-lg cursor-pointer">
           <img
             src={`https://minotar.net/avatar/${user.username}/50`}
@@ -111,15 +120,26 @@ const Kl = () => {
         <ul className="space-y-2">
           <MenuItem icon={<FaKey />} label="เปลี่ยนรหัสผ่าน" onClick={() => setShowChangePassword(true)} />
           <MenuItem icon={<FaSignOutAlt />} label="ออกจากระบบ" onClick={handleLogout} />
+          <MenuItem icon={<Gift />} label="กรอกโค้ด" onClick={() => dispatch(showrederm(true))} />
         </ul>
       </div>
 
       {/* Popup Modal */}
-      <div className={`fixed inset-0 bg-black/40 flex items-center justify-center z-[9998] transition-opacity duration-300
-        ${showChangePassword ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-        <div className={`bg-white/20 backdrop-blur-xl shadow-2xl rounded-3xl border border-white/30 w-[90%] max-w-md space-y-4 relative p-6 
+      <div
+        className={`fixed inset-0 bg-black/40 flex items-center justify-center z-[9998] transition-opacity duration-300
+        ${showChangePassword ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+      >
+        <div
+          className={`bg-white/20 backdrop-blur-xl shadow-2xl rounded-3xl border border-white/30 w-[90%] max-w-md space-y-4 relative p-6 
           transform transition-all duration-300 ease-out
-          ${showChangePassword ? 'translate-y-0 opacity-100' : 'translate-y-10 opacity-0'}`}>
+          ${
+            showChangePassword
+              ? 'translate-y-0 opacity-100'
+              : isMobile()
+              ? 'translate-y-10 opacity-0' // 📱 มือถือ: เลื่อนขึ้น
+              : '-translate-y-10 opacity-0' // 💻 คอม: เลื่อนลง
+          }`}
+        >
           <h2 className="text-white text-2xl font-bold mb-4 text-center drop-shadow-lg">เปลี่ยนรหัสผ่าน</h2>
 
           <PasswordInput
@@ -164,6 +184,7 @@ const Kl = () => {
   );
 };
 
+// 🔐 ช่องกรอกพาสเวิร์ดพร้อมปุ่มเปิด-ปิด
 const PasswordInput = ({ placeholder, value, onChange, visible, toggle }) => (
   <div className="relative mb-3">
     <input
@@ -186,7 +207,7 @@ const PasswordInput = ({ placeholder, value, onChange, visible, toggle }) => (
   </div>
 );
 
-
+// 📋 รายการเมนู
 const MenuItem = ({ icon, label, onClick }) => (
   <li>
     <button
