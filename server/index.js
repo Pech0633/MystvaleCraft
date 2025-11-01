@@ -301,7 +301,7 @@ app.post("/buy", async (req, res) => {
 
         try {
             const rcon = await Rcon.connect({ host: process.env.RCON_HOST, port: Number(process.env.RCON_PORT), password: process.env.RCON_PASSWORD });
-            const rankCommand = rank.command.replace("%player%", user.realname).replace("%q%", quantity);
+            const itemCommand = item.command.replace("%player%", user.realname).replace("%q%", quantity);
             await rcon.send(itemCommand);
             rcon.end();
 
