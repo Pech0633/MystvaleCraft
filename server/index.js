@@ -21,6 +21,7 @@ const Productss = require('./fc/product');
 const product = require('./model/product');
 const Promotions = require('./model/promotions');
 const Checkpromotions = require('./model/checkpromotions');
+const Code = require('./model/code');
 const News = require('./model/new');
 const Shop = require('./fc/shop/shop');
 const blacklist = [];
@@ -30,12 +31,14 @@ const { Webhook, MessageBuilder } = require('discord-webhook-node');
 const hook = new Webhook("https://discord.com/api/webhooks/1432209069829001318/z1LgnyZtU0fqYl55XahLrsvlQ9F24-A-pCbgHJe3AaClbkiYyERBRparw6NorUMFB_7d");
 const promotions = require('./fc/Promotions');
 const Backend = require('./model/backend');
+const IsCode = require('./model/iscode');
 
 // ตรวจสอบว่าโหลด env สำเร็จ
 console.log('✅ IMAGEURL:', process.env.IMAGEURL);
 console.log('✅ TEST:', process.env.TEST);
 
 const { connect, sync } = require('./database');
+const e = require('express');
 async function initDB() {
     await connect();
     await sync();
@@ -49,6 +52,119 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '50mb' }));
+
+app.get('/getcode', (req, res) => {
+    Code.findAll().then(codes => {
+        res.json(codes);
+    }).catch(err => {
+        res.status(500).json({ status: false, error: 'Server error' });
+    });
+}); 
+
+app.post('/code', async (req, res) => {
+  try {
+    const { userId, equal } = req.body;
+
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ status: false, message: "ไม่พบผู้ใช้" });
+    }
+
+    const code = await Code.findOne({ where: { equal } });
+    if (!code) {
+      return res.json({ status: false, message: "ไม่พบโค้ดในระบบ" });
+    }
+
+
+    const alreadyUsed = await IsCode.findOne({
+      where: { username: user.username, equal },
+    });
+    if (alreadyUsed) {
+      return res.json({ status: false, message: "คุณใช้โค้ดนี้ไปแล้ว" });
+    }
+
+
+    if (code.point > 0) {
+      user.point += code.point;
+      await user.save();
+
+      await IsCode.create({ username: user.username, equal: code.equal });
+
+      return res.json({
+        status: true,
+        message: "แลกโค้ดสำเร็จ",
+        newPoint: user.point,
+      });
+    }
+
+    try {
+      const rcon = await Rcon.connect({
+        host: process.env.RCON_HOST,
+        port: Number(process.env.RCON_PORT),
+        password: process.env.RCON_PASSWORD,
+      });
+
+      const rankCommand = code.command.replace(/%player%/g, user.username);
+
+      await rcon.send(rankCommand);
+      await rcon.end();
+
+      await IsCode.create({ username: user.username, equal: code.equal });
+
+      return res.json({ status: true, message: "แลกโค้ดสำเร็จ" });
+    } catch (error) {
+      console.error("RCON Error:", error);
+      return res.status(500).json({
+        status: false,
+        message: "เชื่อมต่อ RCON ไม่ได้ (เซิร์ฟเวอร์อาจปิด)",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ status: false, error: "Server error" });
+  }
+});
+
+app.put('/admin/code/:id', async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { command, point, equal } = req.body;
+
+    const cod = await Code.findByPk(id);
+    if (!cod) {
+      return res.status(404).json({ status: false, message: 'Code not found' });
+    }
+
+    // ✅ อัปเดตข้อมูลในแถวนี้โดยตรง
+    await cod.update({
+      command,
+      point,
+      equal
+    });
+
+    res.json({ status: true, message: 'อัปเดตโค้ดสำเร็จ', data: cod });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ status: false, message: 'เกิดข้อผิดพลาดในเซิร์ฟเวอร์' });
+  }
+});
+
+app.post('/admin/code', async (req, res) => {
+    try {
+        const { command, point, equal } = req.body;
+
+        const newCode = await Code.create({
+            command,
+            point,
+            equal
+        });
+
+        res.json({ status: true, message: 'สร้างโค้ดสำเร็จ', data: newCode });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ status: false, message: 'เกิดข้อผิดพลาดในเซิร์ฟเวอร์' });
+    }
+});
 
 app.get('/', async (req, res) => {
     try {
@@ -103,6 +219,13 @@ app.post('/login', async (req, res) => {
             RP: user.RP
         }
     });
+});
+app.post('/code/dl/:id', async (req, res) => {
+    const id = req.params.id;
+    const cod = await Code.findByPk(id);
+    if (cod) {
+        await cod.destroy();  
+    }
 });
 
 app.get('/user/:token', async (req, res) => {

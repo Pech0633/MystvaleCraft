@@ -40,7 +40,8 @@ export function Navbar() {
   const navItems = [
     { href: '/backend', name: 'backend' },
     { href: '/backend/promotions', name: 'promotions' },
-    { href: '/backend/user', name: 'user' }
+    { href: '/backend/user', name: 'user' },
+    { href: '/backend/code', name: 'code' }
   ];
 
   const toggleProfileMenu = () => {
