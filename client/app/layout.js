@@ -51,7 +51,7 @@ export default function RootLayout({ children }) {
       {/* คลิกที่ภาพได้ทั้งภาพ */}
       <img
         src="r.png"
-        alt="Free Fire Entrance"
+        alt="load limitrack"
         className="w-full h-full object-contain cursor-pointer transition-transform duration-700 hover:scale-105"
         onClick={handleClickImage}
       />
