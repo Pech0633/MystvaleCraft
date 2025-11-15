@@ -267,11 +267,13 @@ app.post("/buy", async (req, res) => {
         }
 
         // เงื่อนไข: ซื้อได้เฉพาะยศถัดไปทีละขั้น หรืออัปเกรดข้ามขั้นถ้า rankup > user.rank
-        const shouldUpgrade = (idrank > 0 && idrank === user.rank + 1) || (idrank === 0 && rankup === user.rank);
-        if (!shouldUpgrade) {
-            return res.json({ status: false, message: "เกิดข้อผิดพลาดในการชำระเงิน (ซื้อได้เฉพาะยศถัดไปทีละขั้น หรืออัปเกรดข้ามขั้น)" });
-        }
-
+      if (idrank === user.rank) { 
+            return res.json({ status: false, message: "คุณมียศนี้อยู่แล้ว" });
+      }
+      else if (rankup +1 === user.rank) { 
+            return res.json({ status: false, message: "คุณมียศนี้อยู่แล้ว" });
+      }else if (idrank > user.rank) {
+        if (!idrank < user.rank) {
         try {
             const rcon = await Rcon.connect({ host: process.env.RCON_HOST, port: Number(process.env.RCON_PORT), password: process.env.RCON_PASSWORD });
             const rankCommand = rank.command.replace("%player%", user.realname).replace("%q%", quantity);
@@ -279,14 +281,35 @@ app.post("/buy", async (req, res) => {
             await rcon.end();
 
             user.point -= totalPrice;
-            user.rank = idrank > 0 ? idrank : user.rank + 1;
+            user.rank = idrank;
             await user.save();
 
             return res.json({ status: true, message: "คุณซื้อสำเร็จ", newPoint: user.point });
         } catch (error) {
             console.error("RCON Error:", error);
             return res.status(500).json({ status: false, message: "เซิฟไม่ได้ออนไลน์" });
+        }}
+      } else if (rankup >= user.rank) {
+        if (rankup < user.rank) {
+      try {
+        if (!rankup -1 < user.rank) {
+            const rcon = await Rcon.connect({ host: process.env.RCON_HOST, port: Number(process.env.RCON_PORT), password: process.env.RCON_PASSWORD });
+            const rankCommand = rank.command.replace("%player%", user.realname).replace("%q%", quantity);
+            await rcon.send(rankCommand);
+            await rcon.end();
+
+            user.point -= totalPrice;
+            user.rank = rankup + 1;
+            await user.save();
+
+            return res.json({ status: true, message: "คุณซื้อสำเร็จ", newPoint: user.point });
         }
+        } catch (error) {
+            console.error("RCON Error:", error);
+            return res.status(500).json({ status: false, message: "เซิฟไม่ได้ออนไลน์" });
+        }
+      }
+      }
     } else {
         // ซื้อไอเทมทั่วไป
         if (!Id) return res.status(400).json({ status: false, message: "Missing item Id" });

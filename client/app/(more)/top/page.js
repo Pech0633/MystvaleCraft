@@ -13,7 +13,7 @@ const Page = () => {
     axios
       .get(apiUrl + "/")
       .then((res) => {
-        const sorted = res.data.sort((a, b) => b.point - a.point).slice(0, 100);
+        const sorted = res.data.sort((a, b) => b.RP - a.RP).slice(0, 100);
         setUsers(sorted);
       })
       .catch((err) => {
@@ -48,7 +48,7 @@ const Page = () => {
                 <div>
                   <p className="text-xl font-semibold">อันดับ {index + 1}</p>
                   <p>ชื่อ: {user.username}</p>
-                  <p>พอยท์ {user.point}</p>
+                  <p>พอยท์ {user.RP}</p>
                 </div>
               </div>
             </div>
