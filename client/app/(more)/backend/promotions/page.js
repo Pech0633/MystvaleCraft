@@ -2,21 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  Store,
-  ShoppingCart,
-  X
-} from 'lucide-react';
-import Link from 'next/link';
+import { Plus, Pencil, Trash2, X } from 'lucide-react';
 import { useSelector } from 'react-redux';
 import { Navbar } from '@/components/Navbar_2';
 
+const emptyForm = { img: null, preview: '', rplimited: '', command: '', name: '' };
+
 export default function AdminPromotionsPage() {
   const [promotions, setPromotions] = useState([]);
-  const [form, setForm] = useState({ img: '', rplimited: '', command: '', name: '' });
+  const [form, setForm] = useState(emptyForm);
   const [editingId, setEditingId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
@@ -41,31 +35,38 @@ export default function AdminPromotionsPage() {
     }
   };
 
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setForm(emptyForm);
+    setEditingId(null);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const formData = new FormData();
-      formData.append('img', form.img);
+      // ส่งไฟล์เฉพาะเมื่อผู้ใช้เลือกรูปใหม่ (ตอนแก้ไขไม่เลือกรูป = ใช้รูปเดิม)
+      if (form.img) formData.append('img', form.img);
       formData.append('rplimited', form.rplimited);
       formData.append('command', form.command);
       formData.append('name', form.name);
 
+      const config = { headers: { 'Content-Type': 'multipart/form-data' } };
+
       if (editingId) {
-        await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/promotions/put/${editingId}`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+        await axios.put(
+          `${process.env.NEXT_PUBLIC_API_URL}/promotions/put/${editingId}`,
+          formData,
+          config
+        );
       } else {
-        await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/promotions/post`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+        await axios.post(
+          `${process.env.NEXT_PUBLIC_API_URL}/promotions/post`,
+          formData,
+          config
+        );
       }
-      setForm({ img: '', rplimited: '', command: '', name: '' });
-      setEditingId(null);
-      setIsModalOpen(false);
+      closeModal();
       fetchPromotions();
     } catch (err) {
       console.error('Submit Error:', err);
@@ -73,15 +74,25 @@ export default function AdminPromotionsPage() {
   };
 
   const handleEdit = (promo) => {
-    setForm({ img: null, rplimited: promo.rplimited, command: promo.command, name: promo.name });
+    setForm({
+      img: null,
+      preview: promo.img, // เก็บ URL รูปเดิมไว้แสดง preview
+      rplimited: promo.rplimited,
+      command: promo.command,
+      name: promo.name,
+    });
     setEditingId(promo.id);
     setIsModalOpen(true);
   };
 
   const handleDelete = async (id) => {
     if (confirm('ยืนยันการลบโปรโมชั่นนี้ใช่หรือไม่?')) {
-      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/promotions/del/${id}`);
-      fetchPromotions();
+      try {
+        await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/promotions/del/${id}`);
+        fetchPromotions();
+      } catch (err) {
+        console.error('Delete Error:', err);
+      }
     }
   };
 
@@ -90,6 +101,9 @@ export default function AdminPromotionsPage() {
       fetchPromotions();
     }
   }, [user]);
+
+  // preview: รูปใหม่ที่เลือก > รูปเดิม
+  const previewSrc = form.img ? URL.createObjectURL(form.img) : form.preview;
 
   if (!isAuthorized) {
     return (
@@ -131,10 +145,10 @@ export default function AdminPromotionsPage() {
                     className="max-w-full max-h-full object-contain rounded-xl"
                   />
                 </div>
-                
+
                 <div className="p-4 space-y-3">
                   <h3 className="text-lg font-semibold text-gray-900 truncate">{promo.name}</h3>
-                  
+
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
@@ -170,9 +184,9 @@ export default function AdminPromotionsPage() {
             <div className="bg-white rounded-2xl shadow-sm border border-gray-100 border-dashed flex items-center justify-center min-h-[200px] transition-all duration-200 hover:shadow-md hover:-translate-y-1">
               <button
                 onClick={() => {
-                  setIsModalOpen(true);
-                  setForm({ img: null, rplimited: '', command: '', name: '' });
+                  setForm(emptyForm);
                   setEditingId(null);
+                  setIsModalOpen(true);
                 }}
                 className="flex flex-col items-center gap-3 p-6 text-gray-500 hover:text-blue-500 transition-colors"
               >
@@ -195,7 +209,8 @@ export default function AdminPromotionsPage() {
                     {editingId ? 'แก้ไขโปรโมชั่น' : 'เพิ่มโปรโมชั่น'}
                   </h2>
                   <button
-                    onClick={() => setIsModalOpen(false)}
+                    type="button"
+                    onClick={closeModal}
                     className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
                   >
                     <X className="w-5 h-5 text-gray-600" />
@@ -215,10 +230,13 @@ export default function AdminPromotionsPage() {
                       <input
                         type="file"
                         accept="image/*"
-                        onChange={(e) => setForm({ ...form, img: e.target.files[0] })}
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) setForm({ ...form, img: file });
+                        }}
                         className="hidden"
                         id="image-upload"
-                        required
+                        required={!editingId}
                       />
                       <label
                         htmlFor="image-upload"
@@ -227,14 +245,16 @@ export default function AdminPromotionsPage() {
                         <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center">
                           <Plus className="w-6 h-6 text-blue-500" />
                         </div>
-                        <span className="text-sm text-gray-600">แตะเพื่อเลือกรูปภาพ</span>
+                        <span className="text-sm text-gray-600">
+                          {editingId ? 'แตะเพื่อเปลี่ยนรูปภาพ (ไม่บังคับ)' : 'แตะเพื่อเลือกรูปภาพ'}
+                        </span>
                       </label>
                     </div>
-                    
-                    {form.img && (
+
+                    {previewSrc && (
                       <div className="flex justify-center">
                         <img
-                          src={typeof form.img === 'string' ? form.img : URL.createObjectURL(form.img)}
+                          src={previewSrc}
                           alt="Preview"
                           className="w-32 h-32 object-cover rounded-2xl border border-gray-200"
                         />
@@ -249,19 +269,14 @@ export default function AdminPromotionsPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       ชื่อโปรโมชั่น
                     </label>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0]
-                            if (file) {
-                              setForm({ ...form, img: file })
-                            }
-                          }}
-                          className="hidden"
-                          id="image-upload"
-                          required={!editingId}
-                        />
+                    <input
+                      type="text"
+                      placeholder="กรอกชื่อโปรโมชั่น"
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      required
+                    />
                   </div>
 
                   <div>
@@ -297,7 +312,7 @@ export default function AdminPromotionsPage() {
                 <div className="flex gap-3 pt-4">
                   <button
                     type="button"
-                    onClick={() => setIsModalOpen(false)}
+                    onClick={closeModal}
                     className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors active:bg-gray-300"
                   >
                     ยกเลิก
