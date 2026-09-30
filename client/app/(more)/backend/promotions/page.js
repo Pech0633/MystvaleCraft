@@ -249,14 +249,19 @@ export default function AdminPromotionsPage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       ชื่อโปรโมชั่น
                     </label>
-                    <input
-                      type="text"
-                      placeholder="กรอกชื่อโปรโมชั่น"
-                      value={form.name}
-                      onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                      required
-                    />
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) {
+                              setForm({ ...form, img: file })
+                            }
+                          }}
+                          className="hidden"
+                          id="image-upload"
+                          required={!editingId}
+                        />
                   </div>
 
                   <div>
