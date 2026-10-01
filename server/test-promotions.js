@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const BASE_URL = 'http://localhost:3001';
+const BASE_URL = 'https://apii.rebirthmc.online';
 
 // ฟังก์ชันทดสอบการตรวจสอบ promotions
 async function testCheckPromotions() {
