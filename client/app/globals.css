@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: rgb(255, 255, 255); /* ใช้ rgba สำหรับการระบุสีและความทึบ */
-  --foreground: rgba(255, 255, 255); /* ใช้ rgba สำหรับการระบุสีและความทึบ */
+  --background: rgb(0, 0, 0); /* ใช้ rgba สำหรับการระบุสีและความทึบ */
+  --foreground: rgba(0, 0, 0); /* ใช้ rgba สำหรับการระบุสีและความทึบ */
 }
 
 
@@ -15,8 +15,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: rgba(255, 255, 255); /* ใช้ rgba สำหรับการระบุสีและความทึบ */
-    --foreground: rgba(255, 255, 255); 
+    --background: rgba(0, 0, 0); /* ใช้ rgba สำหรับการระบุสีและความทึบ */
+    --foreground: rgba(0, 0, 0); 
   }
 }
 
