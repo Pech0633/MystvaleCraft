@@ -14,9 +14,6 @@ const Avatar = ({ username, type = "helm", className = "" }) => {
       alt={username}
       loading="lazy"
       className={className}
-      onError={(e) => {
-        e.currentTarget.style.opacity = "0.4";
-      }}
     />
   );
 };
@@ -46,7 +43,6 @@ const Page = () => {
       });
   }, []);
 
-  // ค้นหา
   const filteredUsers = useMemo(() => {
     const keyword = search.trim().toLowerCase();
 
@@ -59,79 +55,58 @@ const Page = () => {
     );
   }, [users, search]);
 
-  // Top 3
   const first = users[0];
   const second = users[1];
   const third = users[2];
 
-  // รายการอันดับ 4 เป็นต้นไป
   const otherUsers = filteredUsers.filter((user) => {
-    const originalIndex = users.findIndex(
+    const index = users.findIndex(
       (item) => item.username === user.username
     );
 
-    return originalIndex >= 3;
+    return index >= 3;
   });
 
   return (
-    <main className="min-h-screen w-full bg-[#070707] text-white relative overflow-hidden">
-      {/* =====================================================
-          BACKGROUND GRID
-      ====================================================== */}
-      <div className="pointer-events-none absolute inset-0 opacity-[0.18]">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(255,255,255,0.12) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255,255,255,0.12) 1px, transparent 1px)
-            `,
-            backgroundSize: "60px 60px",
-          }}
-        />
-      </div>
+    <main className="min-h-screen w-full bg-transparent text-white">
 
-      {/* =====================================================
-          GLOW
-      ====================================================== */}
-      <div className="pointer-events-none absolute top-[100px] left-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-yellow-500/[0.04] blur-[120px] rounded-full" />
+      <div className="max-w-[1350px] mx-auto px-4 sm:px-6 py-5">
 
-      <div className="relative z-10 max-w-[1400px] mx-auto px-4 sm:px-6 py-7">
+        {/* ================= HEADER ================= */}
 
-        {/* =====================================================
-            HEADER
-        ====================================================== */}
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-5 mb-8">
+        <div className="flex items-center justify-between mb-5">
 
-          {/* Logo / Title */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
+
             <div
               className="
-                w-14 h-14
-                rounded-2xl
+                w-11 h-11
+                rounded-xl
                 flex items-center justify-center
-                bg-yellow-500/[0.08]
+                bg-yellow-500/[0.06]
                 border border-yellow-500/30
-                shadow-[0_0_30px_rgba(234,179,8,0.08)]
               "
             >
-              <span className="text-2xl">📊</span>
+              <span className="text-xl">📊</span>
             </div>
 
             <div>
-              <h1 className="text-2xl sm:text-3xl font-black tracking-tight">
+              <h1 className="text-xl font-black">
                 เลเวล
               </h1>
 
-              <p className="text-sm text-white/40 mt-0.5">
+              <p className="text-xs text-white/40">
                 อันดับสูงสุด 50 คน
               </p>
             </div>
+
           </div>
 
-          {/* Search */}
-          <div className="relative w-full md:w-[240px]">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30">
+          {/* SEARCH */}
+
+          <div className="relative w-[180px] sm:w-[220px]">
+
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/25 text-sm">
               🔍
             </span>
 
@@ -142,432 +117,478 @@ const Page = () => {
               onChange={(e) => setSearch(e.target.value)}
               className="
                 w-full
-                h-12
+                h-10
                 rounded-xl
-                pl-11 pr-4
-                bg-white/[0.035]
-                border border-white/[0.08]
+                pl-9 pr-3
+                bg-white/[0.025]
+                border border-white/[0.07]
+                text-sm
                 text-white
-                placeholder:text-white/30
+                placeholder:text-white/25
                 outline-none
-                transition
-                focus:border-yellow-500/40
-                focus:bg-white/[0.05]
+                focus:border-yellow-500/30
               "
             />
+
           </div>
+
         </div>
 
-        {/* =====================================================
-            TITLE
-        ====================================================== */}
-        <div className="flex items-center justify-center mb-5">
+        {/* ================= TITLE ================= */}
+
+        <div className="flex justify-center mb-4">
+
           <div className="text-center">
-            <h2 className="text-xl sm:text-2xl font-black tracking-wide">
+
+            <h2 className="text-lg font-black">
               SUPPORTER
             </h2>
 
-            <div className="w-16 h-[2px] bg-yellow-500/70 mx-auto mt-2 rounded-full" />
+            <div className="w-12 h-[2px] bg-yellow-500/60 mx-auto mt-1 rounded-full" />
+
           </div>
+
         </div>
 
-        {/* =====================================================
-            LOADING
-        ====================================================== */}
+        {/* ================= LOADING ================= */}
+
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-32">
+
+          <div className="flex justify-center py-20">
+
             <div
               className="
-                w-10 h-10
+                w-8 h-8
+                rounded-full
                 border-2
                 border-white/10
                 border-t-yellow-400
-                rounded-full
                 animate-spin
               "
             />
 
-            <p className="text-white/40 mt-5">
-              กำลังโหลดข้อมูล...
-            </p>
           </div>
+
         ) : users.length === 0 ? (
-          <div className="text-center py-32 text-white/40">
+
+          <div className="text-center py-20 text-white/30">
             ไม่พบข้อมูล
           </div>
+
         ) : (
+
           <>
             {/* =================================================
                 TOP 3
             ================================================== */}
+
             {!search && (
+
               <section
                 className="
                   relative
                   w-full
-                  min-h-[490px]
-                  rounded-[32px]
+                  h-[390px]
+                  rounded-[26px]
                   overflow-hidden
-                  border border-white/[0.06]
-                  bg-white/[0.018]
-                  backdrop-blur-xl
+
+                  bg-white/[0.015]
+
+                  border
+                  border-white/[0.055]
+
+                  backdrop-blur-md
                 "
               >
-                {/* Top glow */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[280px] h-[200px] bg-yellow-500/[0.08] blur-[90px]" />
 
-                <div className="relative min-h-[490px] flex items-end justify-center">
+                {/* ================= FIRST ================= */}
 
-                  {/* ==========================================
-                      SECOND
-                  =========================================== */}
-                  {second && (
+                {first && (
+
+                  <div
+                    className="
+                      absolute
+                      left-1/2
+                      -translate-x-1/2
+                      bottom-0
+
+                      w-[210px]
+                      h-[350px]
+
+                      flex
+                      flex-col
+                      items-center
+                      justify-end
+                    "
+                  >
+
+                    {/* crown */}
+
                     <div
                       className="
                         absolute
-                        left-[5%]
-                        sm:left-[18%]
-                        bottom-0
-                        w-[30%]
-                        max-w-[260px]
-                        min-w-[120px]
-                        h-[300px]
-                        flex flex-col items-center justify-end
+                        top-2
+                        text-3xl
+                        text-yellow-400
                       "
                     >
-                      <div className="relative h-[205px] flex items-end justify-center">
-
-                        <Avatar
-                          username={second.username}
-                          type="body-iso"
-                          className="
-                            w-[100px]
-                            sm:w-[125px]
-                            h-[205px]
-                            object-contain
-                            drop-shadow-[0_0_25px_rgba(255,255,255,0.18)]
-                          "
-                        />
-                      </div>
-
-                      <p className="text-sm sm:text-base font-bold mt-2 truncate max-w-full">
-                        {second.username}
-                      </p>
-
-                      <p className="text-lg font-black text-white/75">
-                        {Number(second.RP || 0).toLocaleString()}
-                      </p>
-
-                      <div
-                        className="
-                          mt-2
-                          w-full
-                          h-[105px]
-                          rounded-t-[22px]
-                          bg-gradient-to-b
-                          from-white/20
-                          via-white/[0.07]
-                          to-white/[0.02]
-                          border border-white/10
-                          border-b-0
-                          flex items-center justify-center
-                        "
-                      >
-                        <span className="text-4xl sm:text-5xl font-black text-white/80">
-                          2
-                        </span>
-                      </div>
+                      ♕
                     </div>
-                  )}
 
-                  {/* ==========================================
-                      FIRST
-                  =========================================== */}
-                  {first && (
+                    {/* player */}
+
+                    <Avatar
+                      username={first.username}
+                      type="body-iso"
+                      className="
+                        w-[105px]
+                        h-[190px]
+                        object-contain
+                        drop-shadow-[0_0_18px_rgba(250,204,21,0.20)]
+                      "
+                    />
+
+                    <p className="text-sm font-black mt-1">
+                      {first.username}
+                    </p>
+
+                    <p className="text-base font-black text-yellow-400">
+                      {Number(first.RP || 0).toLocaleString()}
+                    </p>
+
+                    {/* rank box */}
+
                     <div
                       className="
-                        absolute
-                        left-1/2
-                        -translate-x-1/2
-                        bottom-0
-                        w-[34%]
-                        max-w-[300px]
-                        min-w-[150px]
-                        h-[420px]
-                        flex flex-col items-center justify-end
+                        mt-1
+                        w-full
+                        h-[105px]
+
+                        rounded-t-[20px]
+
+                        bg-gradient-to-b
+                        from-yellow-400/60
+                        via-yellow-500/15
+                        to-transparent
+
+                        border
+                        border-yellow-400/30
+                        border-b-0
+
+                        flex
+                        items-center
+                        justify-center
                       "
                     >
-                      {/* Crown */}
-                      <div
-                        className="
-                          absolute
-                          top-0
-                          text-4xl
-                          text-yellow-400
-                          drop-shadow-[0_0_15px_rgba(250,204,21,0.7)]
-                        "
-                      >
-                        ♕
-                      </div>
 
-                      <div className="relative h-[235px] flex items-end justify-center pt-10">
+                      <span className="text-4xl font-black">
+                        1
+                      </span>
 
-                        <div className="absolute inset-0 bg-yellow-400/[0.06] blur-[45px]" />
-
-                        <Avatar
-                          username={first.username}
-                          type="body-iso"
-                          className="
-                            relative
-                            w-[130px]
-                            sm:w-[160px]
-                            h-[235px]
-                            object-contain
-                            drop-shadow-[0_0_30px_rgba(250,204,21,0.28)]
-                          "
-                        />
-                      </div>
-
-                      <p className="text-base sm:text-lg font-black mt-2">
-                        {first.username}
-                      </p>
-
-                      <p className="text-xl font-black text-yellow-400">
-                        {Number(first.RP || 0).toLocaleString()}
-                      </p>
-
-                      <div
-                        className="
-                          mt-2
-                          w-full
-                          h-[130px]
-                          rounded-t-[24px]
-                          bg-gradient-to-b
-                          from-yellow-400/70
-                          via-yellow-500/20
-                          to-yellow-500/[0.05]
-                          border border-yellow-400/40
-                          border-b-0
-                          flex items-center justify-center
-                          shadow-[0_-10px_50px_rgba(234,179,8,0.10)]
-                        "
-                      >
-                        <span className="text-5xl sm:text-6xl font-black text-white">
-                          1
-                        </span>
-                      </div>
                     </div>
-                  )}
 
-                  {/* ==========================================
-                      THIRD
-                  =========================================== */}
-                  {third && (
+                  </div>
+
+                )}
+
+                {/* ================= SECOND ================= */}
+
+                {second && (
+
+                  <div
+                    className="
+                      absolute
+                      left-[17%]
+                      sm:left-[24%]
+                      bottom-0
+
+                      w-[165px]
+                      h-[280px]
+
+                      flex
+                      flex-col
+                      items-center
+                      justify-end
+                    "
+                  >
+
+                    <Avatar
+                      username={second.username}
+                      type="body-iso"
+                      className="
+                        w-[78px]
+                        h-[145px]
+                        object-contain
+                      "
+                    />
+
+                    <p className="text-xs font-bold mt-1">
+                      {second.username}
+                    </p>
+
+                    <p className="text-sm font-black text-white/70">
+                      {Number(second.RP || 0).toLocaleString()}
+                    </p>
+
                     <div
                       className="
-                        absolute
-                        right-[5%]
-                        sm:right-[18%]
-                        bottom-0
-                        w-[30%]
-                        max-w-[260px]
-                        min-w-[120px]
-                        h-[280px]
-                        flex flex-col items-center justify-end
+                        mt-1
+                        w-full
+                        h-[80px]
+
+                        rounded-t-[18px]
+
+                        bg-gradient-to-b
+                        from-white/20
+                        to-transparent
+
+                        border
+                        border-white/10
+                        border-b-0
+
+                        flex
+                        items-center
+                        justify-center
                       "
                     >
-                      <div className="relative h-[185px] flex items-end justify-center">
 
-                        <Avatar
-                          username={third.username}
-                          type="body-iso"
-                          className="
-                            w-[90px]
-                            sm:w-[115px]
-                            h-[185px]
-                            object-contain
-                            drop-shadow-[0_0_25px_rgba(255,165,0,0.18)]
-                          "
-                        />
-                      </div>
+                      <span className="text-3xl font-black text-white/80">
+                        2
+                      </span>
 
-                      <p className="text-sm sm:text-base font-bold mt-2 truncate max-w-full">
-                        {third.username}
-                      </p>
-
-                      <p className="text-lg font-black text-orange-400">
-                        {Number(third.RP || 0).toLocaleString()}
-                      </p>
-
-                      <div
-                        className="
-                          mt-2
-                          w-full
-                          h-[85px]
-                          rounded-t-[22px]
-                          bg-gradient-to-b
-                          from-orange-500/40
-                          via-orange-500/10
-                          to-orange-500/[0.03]
-                          border border-orange-500/25
-                          border-b-0
-                          flex items-center justify-center
-                        "
-                      >
-                        <span className="text-4xl sm:text-5xl font-black text-white/85">
-                          3
-                        </span>
-                      </div>
                     </div>
-                  )}
 
-                </div>
+                  </div>
+
+                )}
+
+                {/* ================= THIRD ================= */}
+
+                {third && (
+
+                  <div
+                    className="
+                      absolute
+                      right-[17%]
+                      sm:right-[24%]
+                      bottom-0
+
+                      w-[165px]
+                      h-[255px]
+
+                      flex
+                      flex-col
+                      items-center
+                      justify-end
+                    "
+                  >
+
+                    <Avatar
+                      username={third.username}
+                      type="body-iso"
+                      className="
+                        w-[70px]
+                        h-[130px]
+                        object-contain
+                      "
+                    />
+
+                    <p className="text-xs font-bold mt-1">
+                      {third.username}
+                    </p>
+
+                    <p className="text-sm font-black text-orange-400">
+                      {Number(third.RP || 0).toLocaleString()}
+                    </p>
+
+                    <div
+                      className="
+                        mt-1
+                        w-full
+                        h-[65px]
+
+                        rounded-t-[18px]
+
+                        bg-gradient-to-b
+                        from-orange-500/35
+                        to-transparent
+
+                        border
+                        border-orange-500/20
+                        border-b-0
+
+                        flex
+                        items-center
+                        justify-center
+                      "
+                    >
+
+                      <span className="text-3xl font-black text-white/80">
+                        3
+                      </span>
+
+                    </div>
+
+                  </div>
+
+                )}
+
               </section>
+
             )}
 
             {/* =================================================
-                SEARCH RESULT
+                LIST
             ================================================== */}
-            {search && (
-              <div className="mb-5 text-sm text-white/40">
-                ผลการค้นหา:{" "}
-                <span className="text-white/80">
-                  {filteredUsers.length}
-                </span>{" "}
-                คน
-              </div>
-            )}
 
-            {/* =================================================
-                RANK LIST
-            ================================================== */}
-            <section className="mt-5">
-
-              {/* ถ้าไม่ได้ค้นหา ให้เริ่มจากอันดับ 4 */}
-              {!search && otherUsers.length === 0 && (
-                <div className="text-center py-10 text-white/30">
-                  ยังไม่มีผู้สนับสนุนเพิ่มเติม
-                </div>
-              )}
+            <section className="mt-4">
 
               <div className="space-y-2">
 
-                {(search ? filteredUsers : otherUsers).map((user) => {
-                  const originalIndex = users.findIndex(
-                    (item) => item.username === user.username
-                  );
+                {(search ? filteredUsers : otherUsers).map(
+                  (user) => {
 
-                  const rank = originalIndex + 1;
+                    const originalIndex = users.findIndex(
+                      (item) =>
+                        item.username === user.username
+                    );
 
-                  return (
-                    <div
-                      key={user.username}
-                      className="
-                        group
-                        relative
-                        w-full
-                        min-h-[82px]
-                        flex items-center
-                        px-4 sm:px-6
-                        rounded-2xl
-                        bg-white/[0.035]
-                        border border-white/[0.07]
-                        backdrop-blur-xl
-                        transition-all
-                        duration-300
-                        hover:bg-white/[0.06]
-                        hover:border-white/[0.13]
-                        hover:-translate-y-[1px]
-                      "
-                    >
+                    const rank = originalIndex + 1;
 
-                      {/* Left */}
-                      <div className="flex items-center gap-4 sm:gap-5 min-w-0">
+                    return (
 
-                        {/* Rank */}
+                      <div
+                        key={user.username}
+                        className="
+                          w-full
+                          h-[64px]
+
+                          flex
+                          items-center
+
+                          px-4
+
+                          rounded-xl
+
+                          bg-white/[0.025]
+
+                          border
+                          border-white/[0.055]
+
+                          backdrop-blur-md
+
+                          transition
+
+                          hover:bg-white/[0.045]
+                          hover:border-white/[0.10]
+                        "
+                      >
+
+                        {/* rank */}
+
                         <div
                           className="
-                            w-8 sm:w-10
+                            w-8
                             text-center
-                            text-base sm:text-lg
+                            text-sm
                             font-black
                             text-white/35
-                            shrink-0
                           "
                         >
                           {rank}
                         </div>
 
-                        {/* Avatar */}
+                        {/* avatar */}
+
                         <div
                           className="
-                            w-12
-                            h-12
-                            rounded-xl
+                            w-10
+                            h-10
+                            ml-3
+
+                            rounded-lg
+
                             overflow-hidden
-                            flex items-center justify-center
+
                             bg-black/20
-                            border border-white/[0.06]
-                            shrink-0
+
+                            border
+                            border-white/[0.05]
+
+                            flex
+                            items-center
+                            justify-center
                           "
                         >
+
                           <Avatar
                             username={user.username}
                             type="helm"
                             className="
-                              w-12
-                              h-12
+                              w-10
+                              h-10
                               object-contain
                             "
                           />
+
                         </div>
 
-                        {/* Username */}
-                        <div className="min-w-0">
+                        {/* username */}
+
+                        <div className="ml-3 min-w-0">
+
                           <p
                             className="
+                              text-sm
                               font-bold
-                              text-sm sm:text-base
                               truncate
-                              max-w-[180px]
-                              sm:max-w-[400px]
+                              max-w-[200px]
+                              sm:max-w-[500px]
                             "
                           >
                             {user.username}
                           </p>
 
-                          <p className="text-xs text-white/30 mt-0.5">
-                            อันดับ {rank}
-                          </p>
                         </div>
+
+                        {/* RP */}
+
+                        <div className="ml-auto text-right">
+
+                          <p className="text-sm font-black text-yellow-400">
+                            {Number(
+                              user.RP || 0
+                            ).toLocaleString()}
+                          </p>
+
+                        </div>
+
                       </div>
 
-                      {/* RP */}
-                      <div className="ml-auto text-right shrink-0">
-                        <p className="font-black text-yellow-400 text-sm sm:text-base">
-                          {Number(user.RP || 0).toLocaleString()}
-                        </p>
+                    );
 
-                        <p className="text-[10px] sm:text-xs text-white/25">
-                          RP
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
+                  }
+                )}
 
               </div>
 
-              {/* ไม่พบค้นหา */}
-              {search && filteredUsers.length === 0 && (
-                <div className="text-center py-20 text-white/30">
-                  ไม่พบผู้เล่นที่ค้นหา
-                </div>
-              )}
+              {search &&
+                filteredUsers.length === 0 && (
+
+                  <div className="text-center py-16 text-white/30 text-sm">
+                    ไม่พบผู้เล่นที่ค้นหา
+                  </div>
+
+                )}
+
             </section>
+
           </>
+
         )}
+
       </div>
+
     </main>
   );
 };
