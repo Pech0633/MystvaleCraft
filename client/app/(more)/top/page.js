@@ -146,15 +146,16 @@ const Page = () => {
                 h-10
                 rounded-xl
                 pl-9 pr-3
-                bg-[#111111]
-                border border-white/[0.12]
+                bg-white/[0.04]
+                backdrop-blur-md
+                border border-white/[0.08]
                 text-xs sm:text-sm
                 text-white
                 placeholder:text-white/45
                 outline-none
                 transition-all duration-200
                 focus:border-yellow-400/60
-                focus:bg-[#151515]
+                focus:bg-white/[0.06]
                 focus:shadow-[0_0_0_3px_rgba(250,204,21,0.07)]
               "
             />
