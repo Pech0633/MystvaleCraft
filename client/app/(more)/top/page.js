@@ -40,8 +40,13 @@ const Page = () => {
               }`}
             >
               <div className="flex items-center gap-6">
-                <img
+                {/* <img
                   src={`https://mineskin.eu/armor/bust/${user.username}/100.png`}
+                  alt={user.username}
+                  className="w-24 h-24 shadow-lg"
+                /> */}
+                <img
+                  src={`https://tabavatars.net/avatar/?username=${user.username}&type=head-iso&size=100&overlay=true`}
                   alt={user.username}
                   className="w-24 h-24 shadow-lg"
                 />
