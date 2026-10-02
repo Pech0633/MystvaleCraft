@@ -48,7 +48,7 @@ const Page = () => {
                 <img
                   src={`https://tabavatars.net/avatar/?username=${user.username}&type=body-iso`}
                   alt={user.username}
-                  className="w-24 h-24 shadow-lg"
+                  className="w-20 h-24 shadow-lg"
                 />
                 <div>
                   <p className="text-xl font-semibold">อันดับ {index + 1}</p>
