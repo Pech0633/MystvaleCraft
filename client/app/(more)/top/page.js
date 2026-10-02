@@ -46,7 +46,7 @@ const Page = () => {
                   className="w-24 h-24 shadow-lg"
                 /> */}
                 <img
-                  src={`https://tabavatars.net/avatar/?username=${user.username}&type=head-iso&size=100&overlay=true`}
+                  src={`https://tabavatars.net/avatar/?username=${user.username}&type=body-iso`}
                   alt={user.username}
                   className="w-24 h-24 shadow-lg"
                 />
