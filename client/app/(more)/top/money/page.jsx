@@ -33,29 +33,33 @@ const Page = () => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
-  /* GET DATA */
+  /* =======================================================
+     GET MONEY DATA
+  ======================================================= */
 
   useEffect(() => {
     axios
-      .get(apiUrl + "/")
+      .get(apiUrl + "/api/players")
       .then((res) => {
         const data = Array.isArray(res.data) ? res.data : [];
 
         const sorted = [...data]
-          .sort((a, b) => Number(b.RP || 0) - Number(a.RP || 0))
+          .sort((a, b) => Number(b.money || 0) - Number(a.money || 0))
           .slice(0, 100);
 
         setUsers(sorted);
       })
       .catch((err) => {
-        console.error("Error fetching leaderboard:", err);
+        console.error("Error fetching money leaderboard:", err);
       })
       .finally(() => {
         setLoading(false);
       });
   }, []);
 
-  /* SEARCH */
+  /* =======================================================
+     SEARCH
+  ======================================================= */
 
   const filteredUsers = useMemo(() => {
     const keyword = search.trim().toLowerCase();
@@ -71,13 +75,17 @@ const Page = () => {
     );
   }, [users, search]);
 
-  /* TOP 3 */
+  /* =======================================================
+     TOP 3
+  ======================================================= */
 
   const first = users[0];
   const second = users[1];
   const third = users[2];
 
-  /* RANK 4+ */
+  /* =======================================================
+     RANK 4+
+  ======================================================= */
 
   const otherUsers = filteredUsers.filter((user) => {
     const index = users.findIndex(
@@ -87,8 +95,24 @@ const Page = () => {
     return index >= 3;
   });
 
+  /* =======================================================
+     MONEY FORMAT
+  ======================================================= */
+
+  const formatMoney = (money) => {
+    return Number(money || 0).toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    });
+  };
+
+  /* =======================================================
+     RENDER
+  ======================================================= */
+
   return (
     <main className="min-h-screen w-full bg-transparent text-white overflow-x-hidden">
+
       <div className="w-full max-w-[1280px] mx-auto px-3 sm:px-4 lg:px-5 py-3 sm:py-4">
 
         {/* =================================================
@@ -101,6 +125,8 @@ const Page = () => {
 
           <div className="flex items-center gap-2.5">
 
+            {/* ICON */}
+
             <div
               className="
                 w-9 h-9
@@ -108,29 +134,33 @@ const Page = () => {
                 shrink-0
                 rounded-xl
                 flex items-center justify-center
-                bg-yellow-500/[0.06]
-                border border-yellow-500/25
+                bg-green-500/[0.06]
+                border border-green-500/25
               "
             >
-              <Trophy
+              <WalletCards
                 size={19}
                 strokeWidth={2}
-                className="text-yellow-400"
+                className="text-green-400"
               />
             </div>
 
+            {/* TITLE */}
+
             <div className="min-w-0">
+
               <h1 className="text-base sm:text-lg font-black leading-tight">
-                เลเวล
+                เงิน
               </h1>
 
               <p className="text-[10px] sm:text-[11px] text-white/40">
-                อันดับสูงสุด 50 คน
+                อันดับเงินสูงสุด 50 คน
               </p>
+
             </div>
 
             {/* =================================================
-                SWITCH BUTTON
+                SWITCH
             ================================================= */}
 
             <div
@@ -147,7 +177,28 @@ const Page = () => {
               "
             >
 
-              {/* CURRENT RP */}
+              {/* RP */}
+
+              <Link
+                href="/top"
+                className="
+                  flex items-center gap-1.5
+                  h-8
+                  px-2.5
+                  rounded-lg
+                  text-white/45
+                  hover:text-yellow-400
+                  hover:bg-yellow-400/[0.08]
+                  transition-all
+                  text-[10px] sm:text-[11px]
+                  font-black
+                "
+              >
+                <Trophy size={13} />
+                RP
+              </Link>
+
+              {/* MONEY ACTIVE */}
 
               <div
                 className="
@@ -155,43 +206,24 @@ const Page = () => {
                   h-8
                   px-2.5
                   rounded-lg
-                  bg-yellow-400/[0.12]
-                  border border-yellow-400/20
-                  text-yellow-400
-                  text-[10px] sm:text-[11px]
-                  font-black
-                "
-              >
-                <Trophy size={13} />
-                RP
-              </div>
-
-              {/* MONEY */}
-
-              <Link
-                href="/top/money"
-                className="
-                  flex items-center gap-1.5
-                  h-8
-                  px-2.5
-                  rounded-lg
-                  text-white/45
-                  hover:text-green-400
-                  hover:bg-green-400/[0.08]
-                  transition-all
+                  bg-green-400/[0.12]
+                  border border-green-400/20
+                  text-green-400
                   text-[10px] sm:text-[11px]
                   font-black
                 "
               >
                 <WalletCards size={13} />
                 MONEY
-              </Link>
+              </div>
 
             </div>
 
           </div>
 
-          {/* SEARCH */}
+          {/* =================================================
+              SEARCH
+          ================================================= */}
 
           <div className="relative w-full sm:w-[230px]">
 
@@ -225,9 +257,9 @@ const Page = () => {
                 placeholder:text-white/45
                 outline-none
                 transition-all duration-200
-                focus:border-yellow-400/60
+                focus:border-green-400/60
                 focus:bg-white/[0.06]
-                focus:shadow-[0_0_0_3px_rgba(250,204,21,0.07)]
+                focus:shadow-[0_0_0_3px_rgba(74,222,128,0.07)]
               "
             />
 
@@ -244,17 +276,17 @@ const Page = () => {
           <div className="text-center">
 
             <h2 className="text-sm sm:text-base font-black">
-              SUPPORTER
+              MONEY
             </h2>
 
-            <div className="w-9 h-[2px] bg-yellow-500/60 mx-auto mt-1 rounded-full" />
+            <div className="w-9 h-[2px] bg-green-400/60 mx-auto mt-1 rounded-full" />
 
           </div>
 
         </div>
 
         {/* =================================================
-            CONTENT
+            LOADING
         ================================================= */}
 
         {loading ? (
@@ -266,7 +298,7 @@ const Page = () => {
                 w-7 h-7
                 rounded-full
                 border-2 border-white/10
-                border-t-yellow-400
+                border-t-green-400
                 animate-spin
               "
             />
@@ -274,6 +306,8 @@ const Page = () => {
           </div>
 
         ) : users.length === 0 ? (
+
+          /* EMPTY */
 
           <div className="text-center py-16 text-white/30 text-sm">
             ไม่พบข้อมูล
@@ -299,7 +333,9 @@ const Page = () => {
                 "
               >
 
-                {/* DESKTOP */}
+                {/* =================================================
+                    DESKTOP
+                ================================================= */}
 
                 <div
                   className="
@@ -312,7 +348,9 @@ const Page = () => {
                   "
                 >
 
-                  {/* SECOND */}
+                  {/* =================================================
+                      SECOND
+                  ================================================= */}
 
                   {second && (
                     <div
@@ -336,7 +374,7 @@ const Page = () => {
                       </p>
 
                       <p className="text-xs font-black text-white/70">
-                        {Number(second.RP || 0).toLocaleString()}
+                        {formatMoney(second.money)}
                       </p>
 
                       <div
@@ -345,8 +383,11 @@ const Page = () => {
                           w-full
                           h-[68px]
                           rounded-t-[16px]
-                          bg-gradient-to-b from-white/20 to-transparent
-                          border border-white/10 border-b-0
+                          bg-gradient-to-b
+                          from-white/20
+                          to-transparent
+                          border border-white/10
+                          border-b-0
                           flex items-center justify-center
                         "
                       >
@@ -358,7 +399,9 @@ const Page = () => {
                     </div>
                   )}
 
-                  {/* FIRST */}
+                  {/* =================================================
+                      FIRST
+                  ================================================= */}
 
                   {first && (
                     <div
@@ -385,8 +428,8 @@ const Page = () => {
                         {first.username}
                       </p>
 
-                      <p className="text-sm font-black text-yellow-400">
-                        {Number(first.RP || 0).toLocaleString()}
+                      <p className="text-sm font-black text-green-400">
+                        {formatMoney(first.money)}
                       </p>
 
                       <div
@@ -396,10 +439,11 @@ const Page = () => {
                           h-[95px]
                           rounded-t-[18px]
                           bg-gradient-to-b
-                          from-yellow-400/60
-                          via-yellow-500/15
+                          from-green-400/60
+                          via-green-500/15
                           to-transparent
-                          border border-yellow-400/30 border-b-0
+                          border border-green-400/30
+                          border-b-0
                           flex items-center justify-center
                         "
                       >
@@ -411,7 +455,9 @@ const Page = () => {
                     </div>
                   )}
 
-                  {/* THIRD */}
+                  {/* =================================================
+                      THIRD
+                  ================================================= */}
 
                   {third && (
                     <div
@@ -435,7 +481,7 @@ const Page = () => {
                       </p>
 
                       <p className="text-xs font-black text-orange-400">
-                        {Number(third.RP || 0).toLocaleString()}
+                        {formatMoney(third.money)}
                       </p>
 
                       <div
@@ -462,7 +508,9 @@ const Page = () => {
 
                 </div>
 
-                {/* MOBILE */}
+                {/* =================================================
+                    MOBILE
+                ================================================= */}
 
                 <div
                   className="
@@ -491,7 +539,7 @@ const Page = () => {
                         </p>
 
                         <p className="text-[10px] font-black text-white/70">
-                          {Number(second.RP || 0).toLocaleString()}
+                          {formatMoney(second.money)}
                         </p>
 
                         <div
@@ -500,8 +548,11 @@ const Page = () => {
                             w-full
                             h-[55px]
                             rounded-t-lg
-                            bg-gradient-to-b from-white/20 to-transparent
-                            border border-white/10 border-b-0
+                            bg-gradient-to-b
+                            from-white/20
+                            to-transparent
+                            border border-white/10
+                            border-b-0
                             flex items-center justify-center
                           "
                         >
@@ -534,8 +585,8 @@ const Page = () => {
                           {first.username}
                         </p>
 
-                        <p className="text-[11px] font-black text-yellow-400">
-                          {Number(first.RP || 0).toLocaleString()}
+                        <p className="text-[11px] font-black text-green-400">
+                          {formatMoney(first.money)}
                         </p>
 
                         <div
@@ -545,10 +596,11 @@ const Page = () => {
                             h-[68px]
                             rounded-t-lg
                             bg-gradient-to-b
-                            from-yellow-400/60
-                            via-yellow-500/15
+                            from-green-400/60
+                            via-green-500/15
                             to-transparent
-                            border border-yellow-400/30 border-b-0
+                            border border-green-400/30
+                            border-b-0
                             flex items-center justify-center
                           "
                         >
@@ -578,7 +630,7 @@ const Page = () => {
                         </p>
 
                         <p className="text-[10px] font-black text-orange-400">
-                          {Number(third.RP || 0).toLocaleString()}
+                          {formatMoney(third.money)}
                         </p>
 
                         <div
@@ -587,8 +639,11 @@ const Page = () => {
                             w-full
                             h-[46px]
                             rounded-t-lg
-                            bg-gradient-to-b from-orange-500/35 to-transparent
-                            border border-orange-500/20 border-b-0
+                            bg-gradient-to-b
+                            from-orange-500/35
+                            to-transparent
+                            border border-orange-500/20
+                            border-b-0
                             flex items-center justify-center
                           "
                         >
@@ -669,11 +724,13 @@ const Page = () => {
                           flex items-center justify-center
                         "
                       >
+
                         <Avatar
                           username={user.username}
                           type="helm"
                           className="w-8 h-8 sm:w-9 sm:h-9"
                         />
+
                       </div>
 
                       {/* USERNAME */}
@@ -686,12 +743,12 @@ const Page = () => {
 
                       </div>
 
-                      {/* RP */}
+                      {/* MONEY */}
 
                       <div className="ml-2 shrink-0 text-right">
 
-                        <p className="text-[11px] sm:text-xs font-black text-yellow-400">
-                          {Number(user.RP || 0).toLocaleString()}
+                        <p className="text-[11px] sm:text-xs font-black text-green-400">
+                          {formatMoney(user.money)}
                         </p>
 
                       </div>
