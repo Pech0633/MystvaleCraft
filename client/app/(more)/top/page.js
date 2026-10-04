@@ -163,7 +163,7 @@ const Page = () => {
                 "
               >
                 <Trophy size={13} />
-                RP
+                พอยต์
               </div>
 
               {/* MONEY */}
@@ -184,7 +184,7 @@ const Page = () => {
                 "
               >
                 <WalletCards size={13} />
-                MONEY
+                เงิน
               </Link>
 
             </div>
