@@ -148,7 +148,7 @@ const TopupPage = () => {
           {promoLoading ? (
             <div className="text-center text-white/70">กำลังโหลดโปรโมชั่น...</div>
           ) : promotions.length === 0 ? (
-            <div className="text-center text-white text-lg font-bold py-8">คุณได้รับไปหมดแล้ว</div>
+            <div className="text-center text-white text-lg font-bold py-8">ติดตามข่าวสารได้ที่ discord server ครับ</div>
           ) : (
             <div className="flex overflow-x-auto space-x-6 pb-2 promo-scrollbar">
               {promotions.map((promo) => {
