@@ -7,7 +7,7 @@ import { useDispatch } from 'react-redux';
 import Link from 'next/link';
 
 const SERVER_IP = 'play.rebirthmc.online';
-const DISCORD_URL = 'https://discord.gg/YOUR_INVITE_CODE'; // 👈 เปลี่ยนเป็นลิงก์ดิสคอร์ดของคุณ
+const DISCORD_URL = 'https://discord.com/invite/xcUf7Ysv5Z'; // 
 
 const menuItems = [
   {
